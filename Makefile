@@ -15,9 +15,9 @@ help:
 	echo "make grpc-client - 运行grpc client代码"
 	echo "make clean - 清除vendor"
 grpc: mod-down
-	protoc -I=internal/rpc/jim_proto -I=$(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
-      --go_out=internal/rpc --go-grpc_out=internal/rpc --grpc-gateway_out=internal/rpc \
-      --grpc-gateway_opt logtostderr=true internal/rpc/jim_proto/*.proto
+	protoc -I=internal/jim_proto/proto -I=$(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
+      --go_out=internal/jim_proto/ --go-grpc_out=internal/jim_proto/ --grpc-gateway_out=internal/jim_proto/ \
+      --grpc-gateway_opt logtostderr=true internal/jim_proto/proto/*.proto
 mod-tidy:
 	go mod tidy
 mod-down:
