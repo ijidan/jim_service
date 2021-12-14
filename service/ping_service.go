@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"github.com/opentracing/opentracing-go"
-	"jim/internal/rpc/proto_build"
+	"jim_service/internal/jim_proto/proto_build"
 )
 
 // PingService Hello服务

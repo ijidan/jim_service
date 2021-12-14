@@ -5,7 +5,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
-	"jim/config"
+	"jim_service/config"
 	"sync"
 	"time"
 )

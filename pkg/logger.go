@@ -3,7 +3,7 @@ package pkg
 import (
 	"github.com/sirupsen/logrus"
 	"io"
-	"jim/config"
+	"jim_service/config"
 	"os"
 	"sync"
 )

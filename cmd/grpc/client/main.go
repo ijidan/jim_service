@@ -5,8 +5,8 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"jim/global"
-	"jim/internal/rpc/proto_build"
+	"jim_service/global"
+	"jim_service/internal/jim_proto/proto_build"
 	"time"
 )
 

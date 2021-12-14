@@ -3,7 +3,7 @@ package pkg
 import (
 	"fmt"
 	"github.com/gomodule/redigo/redis"
-	"jim/config"
+	"jim_service/config"
 	"sync"
 )
 

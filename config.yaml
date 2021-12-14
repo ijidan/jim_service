@@ -1,5 +1,5 @@
 app :
-  name: Jim
+  name: Jim_service
   ver: 1.0.1
   env: local
 http:

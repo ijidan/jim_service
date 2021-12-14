@@ -6,8 +6,8 @@ import (
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"io"
-	"jim/config"
-	"jim/pkg"
+	"jim_service/config"
+	"jim_service/pkg"
 	"path/filepath"
 	"runtime"
 )

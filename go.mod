@@ -1,4 +1,4 @@
-module jim
+module jim_service
 
 go 1.17
 
