@@ -4,7 +4,7 @@
 // 	protoc        v3.6.1
 // source: ping.proto
 
-package proto_build
+package proto_build_all
 
 import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"

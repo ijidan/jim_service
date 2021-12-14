@@ -6,7 +6,7 @@ Package proto_build is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package proto_build
+package proto_build_all
 
 import (
 	"context"
