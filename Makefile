@@ -1,6 +1,6 @@
-APP = jim
+APP = jim_service
 PACKAGE =
-OUTPUT_BUILD_DIR = /data/jim
+OUTPUT_BUILD_DIR = /data/jim_service
 
 
 .PHONY : mod-down build run docker-compose grpc-server grpc-client clean help

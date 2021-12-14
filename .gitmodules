@@ -1,3 +1,3 @@
-[submodule "jim_proto"]
-	path = jim_proto
+[submodule "internal/rpc/jim_proto"]
+	path = internal/rpc/jim_proto
 	url = https://fp-anzhu@bitbucket.org/fp-anzhu/jim_proto.git

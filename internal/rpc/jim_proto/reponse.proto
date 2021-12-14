@@ -1,8 +1,0 @@
-syntax = "proto3";
-option go_package ="proto_build/";
-//通用返回
-message CommonResponse{
-  int32   error_code = 1; //错误码
-  int32   business_code = 2; //业务码
-  string  message = 3; //信息
-}
