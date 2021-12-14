@@ -1,0 +1,43 @@
+app :
+  name: Jim
+  ver: 1.0.1
+  env: local
+http:
+  host: 0.0.0.0
+  port: 8081
+  log: log/gin.log
+
+websocket:
+  host: 0.0.0.0
+  port: 8082
+  log: log/websocket.log
+
+rpc:
+  host: 0.0.0.0
+  port: 8083
+  log: log/rpc.log
+
+mysql:
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: root
+  charset: utf8mb4
+  database: jim
+
+redis:
+  host: 172.17.0.1
+  port: 6379
+  user: ""
+  password: ""
+  db: 0
+
+jaeger:
+  host: 172.17.0.1
+  port: 6831
+
+jwt:
+  secret: __jim__
+
+pager:
+  page_size: 10
