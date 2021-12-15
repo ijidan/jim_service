@@ -6,6 +6,7 @@ import (
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
+	"github.com/grpc-ecosystem/go-grpc-middleware/ratelimit"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -52,6 +53,7 @@ func runGrpcServer() *grpc.Server {
 			grpc_zap.StreamServerInterceptor(interceptor.ZapInterceptor()),
 			grpc_auth.StreamServerInterceptor(interceptor.AuthInterceptor),
 			grpc_recovery.StreamServerInterceptor(interceptor.RecoveryInterceptor()),
+			ratelimit.StreamServerInterceptor(interceptor.NewLimiterInterceptor()),
 		)),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
@@ -60,6 +62,7 @@ func runGrpcServer() *grpc.Server {
 			grpc_zap.UnaryServerInterceptor(interceptor.ZapInterceptor()),
 			grpc_auth.UnaryServerInterceptor(interceptor.AuthInterceptor),
 			grpc_recovery.UnaryServerInterceptor(interceptor.RecoveryInterceptor()),
+			ratelimit.UnaryServerInterceptor(interceptor.NewLimiterInterceptor()),
 		)),
 
 	}
