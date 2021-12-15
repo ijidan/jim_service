@@ -20,7 +20,7 @@ func main() {
 	connCtx,cancel:=context.WithTimeout(context.Background(),5*time.Second)
 	defer cancel()
 
-	clientToken:=pkg.NewClientToken(global.Config.Jwt.DefaultToken)
+	clientToken:=pkg.NewClientToken("")
 	conn, err := grpc.DialContext(connCtx,address, grpc.WithInsecure(), grpc.WithBlock(),grpc.WithPerRPCCredentials(clientToken))
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)

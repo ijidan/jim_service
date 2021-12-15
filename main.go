@@ -49,17 +49,17 @@ func runGrpcServer() *grpc.Server {
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_ctxtags.StreamServerInterceptor(),
 			grpc_opentracing.StreamServerInterceptor(),
-			grpc_zap.StreamServerInterceptor(interceptor.NewZapInterceptor()),
+			grpc_zap.StreamServerInterceptor(interceptor.ZapInterceptor()),
 			grpc_auth.StreamServerInterceptor(interceptor.AuthInterceptor),
-			grpc_recovery.StreamServerInterceptor(),
+			grpc_recovery.StreamServerInterceptor(interceptor.RecoveryInterceptor()),
 		)),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
 			grpc_ctxtags.UnaryServerInterceptor(),
 			grpc_opentracing.UnaryServerInterceptor(),
-			grpc_zap.UnaryServerInterceptor(interceptor.NewZapInterceptor()),
+			grpc_zap.UnaryServerInterceptor(interceptor.ZapInterceptor()),
 			grpc_auth.UnaryServerInterceptor(interceptor.AuthInterceptor),
-			grpc_recovery.UnaryServerInterceptor(),
+			grpc_recovery.UnaryServerInterceptor(interceptor.RecoveryInterceptor()),
 		)),
 
 	}

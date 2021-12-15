@@ -10,7 +10,7 @@ import (
 	"jim_service/global"
 )
 
-func NewZapInterceptor() *zap.Logger {
+func ZapInterceptor() *zap.Logger {
 	if global.Config.App.Env==config.EnvLocal || global.Config.App.Env==config.EnvTest{
 		return notProductionZap()
 	}
