@@ -38,6 +38,6 @@ func init() {
 	Db = pkg.GetDbInstance(Config)
 	Rd = pkg.GetRdInstance(Config)
 	Response = pkg.GetResponseInstance()
-	Tracer, Closer = pkg.NewJaeger(Config, "jim_api")
+	Tracer, Closer = pkg.NewJaeger(Config, "jim_service")
 	RequestId = "X-Request-Id"
 }

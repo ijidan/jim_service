@@ -29,6 +29,7 @@ jaeger:
 
 jwt:
   secret: __jim__
+  default_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2Mzk4MTUwMDQsInVpZCI6MX0.wT2xLgwOTLoJV5v-TRLFXl-f1HGyd04Vx2TPm5mzNW8
 
 pager:
   page_size: 10

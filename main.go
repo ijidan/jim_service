@@ -4,7 +4,11 @@ import (
 	"context"
 	"fmt"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
+	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -12,6 +16,7 @@ import (
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"jim_service/global"
+	"jim_service/internal/interceptor"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/service"
 
@@ -41,9 +46,22 @@ func runHttpServer() *http.ServeMux {
 
 func runGrpcServer() *grpc.Server {
 	opts := []grpc.ServerOption{
+		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
+			grpc_ctxtags.StreamServerInterceptor(),
+			grpc_opentracing.StreamServerInterceptor(),
+			grpc_zap.StreamServerInterceptor(interceptor.NewZapInterceptor()),
+			grpc_auth.StreamServerInterceptor(interceptor.AuthInterceptor),
+			grpc_recovery.StreamServerInterceptor(),
+		)),
+
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
+			grpc_ctxtags.UnaryServerInterceptor(),
+			grpc_opentracing.UnaryServerInterceptor(),
+			grpc_zap.UnaryServerInterceptor(interceptor.NewZapInterceptor()),
+			grpc_auth.UnaryServerInterceptor(interceptor.AuthInterceptor),
 			grpc_recovery.UnaryServerInterceptor(),
 		)),
+
 	}
 	server := grpc.NewServer(opts...)
 	proto_build.RegisterUserServiceServer(server, service.NewUserService())

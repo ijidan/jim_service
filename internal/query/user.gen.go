@@ -6,7 +6,7 @@ package query
 
 import (
 	"context"
-	"jim/internal/model"
+	"jim_service/internal/model"
 
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"

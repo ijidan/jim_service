@@ -10,7 +10,7 @@ import (
 type Jwt struct {
 }
 
-func (j *Jwt) createToken(uid int64, secret string) (string, error) {
+func (j *Jwt) createToken(uid uint64, secret string) (string, error) {
 	claim := jwt.MapClaims{
 		"uid": uid,
 		"exp": time.Now().Add(3 * 24 * time.Hour).Unix(),
@@ -26,7 +26,7 @@ func (j *Jwt) refreshToken(tokenStr string, secret string) (string, error) {
 		return "", err
 	}
 	uid := claim["uid"]
-	return j.createToken(uid.(int64), secret)
+	return j.createToken(uid.(uint64), secret)
 }
 
 func (j *Jwt) parseToken(tokenStr string, secret string) (map[string]interface{}, error) {
@@ -63,7 +63,7 @@ func GetJwtInstance() *Jwt {
 	return instanceJwt
 }
 
-func GenJwtToken(uid int64, secret string) string {
+func GenJwtToken(uid uint64, secret string) string {
 	j := GetJwtInstance()
 	token, err := j.createToken(uid, secret)
 	if err != nil {

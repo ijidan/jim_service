@@ -53,6 +53,7 @@ type Config struct {
 	}
 	Jwt struct {
 		Secret string `yaml:"secret"`
+		DefaultToken string `yaml:"default_token"`
 	}
 	Pager struct {
 		PageSize uint `yaml:"page_size"`

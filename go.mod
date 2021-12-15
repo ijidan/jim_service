@@ -5,33 +5,30 @@ go 1.17
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/fsnotify/fsnotify v1.5.1
-	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.7.6
 	github.com/go-playground/validator/v10 v10.9.0
 	github.com/gofrs/uuid v4.1.0+incompatible
-	github.com/gogf/gf v1.16.6
-	github.com/golang-jwt/jwt/v4 v4.1.0
 	github.com/gomodule/redigo v1.8.5
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.1
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/rs/zerolog v1.15.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cast v1.4.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.9.0
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
+	go.uber.org/zap v1.17.0
 	google.golang.org/grpc v1.42.0
 	google.golang.org/protobuf v1.27.1
+	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.2.1
 	gorm.io/gen v0.1.29
 	gorm.io/gorm v1.22.4
 )
 
 require (
-	github.com/gogo/protobuf v1.3.2 // indirect
-	github.com/mwitkow/go-proto-validators v0.3.2 // indirect
+	github.com/spf13/cast v1.4.1 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
 )
 
 require (
@@ -45,7 +42,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
 	github.com/spf13/afero v1.6.0 // indirect
@@ -71,7 +67,6 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
-	github.com/olekukonko/tablewriter v0.0.5
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	golang.org/x/net v0.0.0-20211205041911-012df41ee64c
 	golang.org/x/sys v0.0.0-20211205182925-97ca703d548d // indirect
