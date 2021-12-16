@@ -11,16 +11,18 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/reflection"
 	"jim_service/internal/interceptor"
 	"jim_service/internal/jim_proto/proto_build"
 	service2 "jim_service/internal/service"
 	"net/http"
+	_ "net/http/pprof"
 	"strings"
+
 )
 
 func runHttpServer() *http.ServeMux {
@@ -74,7 +76,7 @@ func runGrpcGatewayServer(host string, port uint) *gwruntime.ServeMux {
 	go func() {
 		select {
 		case err := <-errs:
-			grpclog.Fatalln("failed to listen：%v", err)
+			logrus.Fatalln("failed to listen：%v", err)
 		}
 	}()
 	return gwMux
@@ -99,6 +101,12 @@ func RunServer(host string, port uint) error {
 	gatewayServer := runGrpcGatewayServer(host, port)
 
 	httpServer.Handle("/", gatewayServer)
+	go func() {
+		err := http.ListenAndServe(":10108", nil)
+		if err != nil {
+			logrus.Fatalln("failed to listen：%v", err)
+		}
+	}()
 	return http.ListenAndServe(address, grpcHandlerFunc(grpcServer, httpServer))
 }
 
