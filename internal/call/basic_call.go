@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"jim_service/global"
 	"jim_service/pkg"
 	"time"
@@ -36,7 +37,9 @@ func (c *BasicCall) GetClientConn() (*grpc.ClientConn, context.CancelFunc) {
 }
 
 func (c *BasicCall) GetContext() (context.Context, context.CancelFunc) {
-	c.DialCtx, c.DialCancel = context.WithTimeout(context.Background(), 5*time.Second)
+	ctx:=context.Background()
+	newCtx:=metadata.AppendToOutgoingContext(ctx,"X-Request-Source","grpc/client")
+	c.DialCtx, c.DialCancel = context.WithTimeout(newCtx, 5*time.Second)
 	return c.DialCtx, c.DialCancel
 }
 
