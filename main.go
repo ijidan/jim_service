@@ -13,7 +13,7 @@ func main() {
 	rpc := global.Config.Rpc
 	err := server.RunServer(rpc.Host, rpc.Port)
 	if err != nil {
-		logrus.Fatalln("failed to listen：", err)
+		logrus.Fatalf("failed to listen：", err)
 	}
 }
 

@@ -23,7 +23,6 @@ import (
 	service "jim_service/internal/service"
 	"net/http"
 	_ "net/http/pprof"
-	_ "net/http/pprof"
 	"strings"
 )
 
@@ -78,7 +77,7 @@ func runGrpcGatewayServer(host string, port uint) *gwruntime.ServeMux {
 	go func() {
 		select {
 		case err := <-errs:
-			logrus.Fatalln("failed to listen：%v", err)
+			logrus.Fatalf("failed to listen：%v", err)
 		}
 	}()
 	return gwMux
@@ -107,7 +106,7 @@ func RunServer(host string, port uint) error {
 		http.Handle("/metrics", promhttp.Handler())
 		err := http.ListenAndServe(":10108", nil)
 		if err != nil {
-			logrus.Fatalln("failed to listen：%v", err)
+			logrus.Fatalf("failed to listen：%v", err)
 		}
 	}()
 	return http.ListenAndServe(address, grpcHandlerFunc(grpcServer, httpServer))
