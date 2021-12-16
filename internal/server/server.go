@@ -11,6 +11,8 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	_ "github.com/mkevac/debugcharts"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
@@ -18,11 +20,11 @@ import (
 	"google.golang.org/grpc/reflection"
 	"jim_service/internal/interceptor"
 	"jim_service/internal/jim_proto/proto_build"
-	service2 "jim_service/internal/service"
+	service "jim_service/internal/service"
 	"net/http"
 	_ "net/http/pprof"
+	_ "net/http/pprof"
 	"strings"
-
 )
 
 func runHttpServer() *http.ServeMux {
@@ -55,8 +57,8 @@ func runGrpcServer() *grpc.Server {
 
 	}
 	server := grpc.NewServer(opts...)
-	proto_build.RegisterUserServiceServer(server, service2.NewUserService())
-	proto_build.RegisterPingServiceServer(server, service2.NewPingService())
+	proto_build.RegisterUserServiceServer(server, service.NewUserService())
+	proto_build.RegisterPingServiceServer(server, service.NewPingService())
 
 	reflection.Register(server)
 	return server
@@ -102,6 +104,7 @@ func RunServer(host string, port uint) error {
 
 	httpServer.Handle("/", gatewayServer)
 	go func() {
+		http.Handle("/metrics", promhttp.Handler())
 		err := http.ListenAndServe(":10108", nil)
 		if err != nil {
 			logrus.Fatalln("failed to listen：%v", err)
