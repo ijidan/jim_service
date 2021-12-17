@@ -2,20 +2,24 @@ package test
 
 import (
 	"context"
+	"github.com/stretchr/testify/assert"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/internal/service"
 	"testing"
 )
 
 func TestPing(t *testing.T) {
-	ping := service.NewPingService()
-	_, err := ping.Ping(context.Background(), &proto_build.PingRequest{})
-	if err != nil {
-		t.Errorf("error:%v", err)
-	}
+	pingService := service.NewPingService()
+	rsp, err := pingService.Ping(context.Background(), &proto_build.PingRequest{})
+	assert.Nil(t, err)
+	t.Log(rsp,err)
 }
 
+
+
 func BenchmarkPing(b *testing.B) {
-	ping := service.NewPingService()
-	_, _ = ping.Ping(context.Background(), &proto_build.PingRequest{})
+	for i:=0;i<b.N;i++{
+		pingService := service.NewPingService()
+		_, _ = pingService.Ping(context.Background(), &proto_build.PingRequest{})
+	}
 }

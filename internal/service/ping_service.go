@@ -18,6 +18,7 @@ func (s *PingService) GetName() string {
 }
 
 func (s *PingService) Ping(c context.Context, req *proto_build.PingRequest) (*proto_build.PingResponse, error) {
+	//return nil,errors.New("error trigger")
 	rsp := &proto_build.PingResponse{
 		Message: "pong",
 	}
