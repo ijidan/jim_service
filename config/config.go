@@ -4,6 +4,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"sync"
+	"time"
 )
 
 const EnvLocal = "local"
@@ -57,6 +58,10 @@ type Config struct {
 	}
 	Pager struct {
 		PageSize uint `yaml:"page_size"`
+	}
+	Etcd struct{
+		EndPoints []string `yaml:"end_points"`
+		DialTimeout time.Duration `yaml:"dial_timeout"`
 	}
 }
 

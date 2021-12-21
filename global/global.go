@@ -4,6 +4,7 @@ import (
 	"github.com/gomodule/redigo/redis"
 	"github.com/opentracing/opentracing-go"
 	"github.com/sirupsen/logrus"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"gorm.io/gorm"
 	"io"
 	"jim_service/config"
@@ -22,6 +23,9 @@ var (
 	Tracer    opentracing.Tracer
 	Closer    io.Closer
 	RequestId string
+	ClientV3 *clientv3.Client
+	ServiceRegister *pkg.ServiceRegister
+	ServiceDiscovery *pkg.ServiceDiscovery
 )
 
 func Close() {
@@ -40,4 +44,6 @@ func init() {
 	Response = pkg.GetResponseInstance()
 	Tracer, Closer = pkg.NewJaeger(Config, "jim_service")
 	RequestId = "X-Request-Id"
+	ClientV3=pkg.NewClientV3(Config.Etcd.EndPoints,Config.Etcd.DialTimeout)
+	ServiceRegister=pkg.NewServiceRegister(ClientV3,Config.App.Name)
 }

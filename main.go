@@ -1,10 +1,13 @@
 package main
 
 import (
+	"embed"
 	"github.com/sirupsen/logrus"
 	"jim_service/global"
 	"jim_service/internal/server"
 )
+//go:embed config.yaml
+var config embed.FS
 
 func main() {
 	defer func() {

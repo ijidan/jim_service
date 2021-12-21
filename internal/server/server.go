@@ -31,6 +31,7 @@ func runHttpServer() *http.ServeMux {
 	serveMux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`pong`))
 	})
+	serveMux.Handle("/metrics",promhttp.Handler())
 	return serveMux
 }
 
@@ -84,6 +85,7 @@ func runGrpcGatewayServer(host string, port uint) *gwruntime.ServeMux {
 }
 
 
+
 func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
 	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
@@ -102,13 +104,6 @@ func RunServer(host string, port uint) error {
 	gatewayServer := runGrpcGatewayServer(host, port)
 
 	httpServer.Handle("/", gatewayServer)
-	go func() {
-		http.Handle("/metrics", promhttp.Handler())
-		err := http.ListenAndServe(":10108", nil)
-		if err != nil {
-			logrus.Fatalf("failed to listen：%v", err)
-		}
-	}()
 	return http.ListenAndServe(address, grpcHandlerFunc(grpcServer, httpServer))
 }
 

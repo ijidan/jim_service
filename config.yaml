@@ -8,7 +8,7 @@ rpc:
   log: log/rpc.log
 
 mysql:
-  host: 127.0.0.1
+  host: 172.17.0.1
   port: 3306
   user: root
   password: root
@@ -32,3 +32,8 @@ jwt:
 
 pager:
   page_size: 10
+
+etcd:
+  end_points:
+    - 0.0.0.0:2379
+  dial_timeout: 5
