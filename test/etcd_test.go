@@ -1,0 +1,22 @@
+package test
+
+import (
+	"jim_service/global"
+	"jim_service/pkg"
+	"testing"
+)
+
+func TestGetServerList(t *testing.T) {
+	defer global.Close()
+	serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3, global.Config.App.Name)
+	serverList := serviceDiscovery.GetServerList("ping_service")
+	t.Log(serverList)
+}
+
+func BenchmarkGetServerList(b *testing.B) {
+	defer global.Close()
+	for i := 0; i < b.N; i++ {
+		serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3, global.Config.App.Name)
+		_ = serviceDiscovery.GetServerList("ping_service")
+	}
+}

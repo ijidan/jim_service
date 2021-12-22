@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/opentracing/opentracing-go"
+	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
 )
 
@@ -12,13 +13,7 @@ type PingService struct {
 	proto_build.UnimplementedPingServiceServer
 }
 
-// GetName 获取服务名称
-func (s *PingService) GetName() string {
-	return "ping_service"
-}
-
 func (s *PingService) Ping(c context.Context, req *proto_build.PingRequest) (*proto_build.PingResponse, error) {
-	//return nil,errors.New("error trigger")
 	rsp := &proto_build.PingResponse{
 		Message: "pong",
 	}
@@ -32,7 +27,13 @@ func (s *PingService) Ping(c context.Context, req *proto_build.PingRequest) (*pr
 }
 
 // NewPingService 获取实例
-func NewPingService() *PingService {
-	instance := &PingService{}
+func NewPingService(config *config.Config) *PingService {
+	instance := &PingService{BasicService:BasicService{
+		Name:    "ping_service",
+		AppName: config.App.Name,
+		Host:    config.Rpc.Host,
+		Port:    config.Rpc.Port,
+		Ttl:     config.Rpc.Ttl,
+	}}
 	return instance
 }

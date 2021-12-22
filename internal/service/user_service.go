@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/opentracing/opentracing-go"
+	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
 )
 
@@ -10,11 +11,6 @@ import (
 type UserService struct {
 	BasicService
 	proto_build.UnimplementedUserServiceServer
-}
-
-// GetName 获取服务名称
-func (s *UserService) GetName() string {
-	return "user_service"
 }
 
 func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserRequest) (*proto_build.CreateUserResponse, error) {
@@ -31,7 +27,13 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserR
 }
 
 // NewUserService 获取实例
-func NewUserService() *UserService {
-	instance := &UserService{}
+func NewUserService(config *config.Config) *UserService {
+	instance := &UserService{BasicService:BasicService{
+		Name:    "user_service",
+		AppName: config.App.Name,
+		Host:    config.Rpc.Host,
+		Port:    config.Rpc.Port,
+		Ttl:     config.Rpc.Ttl,
+	}}
 	return instance
 }

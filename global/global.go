@@ -44,6 +44,6 @@ func init() {
 	Response = pkg.GetResponseInstance()
 	Tracer, Closer = pkg.NewJaeger(Config, "jim_service")
 	RequestId = "X-Request-Id"
-	ClientV3=pkg.NewClientV3(Config.Etcd.EndPoints,Config.Etcd.DialTimeout)
+	ClientV3=pkg.NewClientV3(Config.Etcd.Host,Config.Etcd.Timeout)
 	ServiceRegister=pkg.NewServiceRegister(ClientV3,Config.App.Name)
 }
