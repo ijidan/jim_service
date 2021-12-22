@@ -36,7 +36,13 @@ func (r *ServiceRegister) RegisterService(srvList ...service.BasicService) {
 }
 
 func (r *ServiceRegister) UnRegisterService(srv service.BasicService) {
-	_, err := r.Client.KV.Delete(context.Background(), srv.GetRegisterKey())
+	leaseId:=r.ServiceLeaseIdMap[srv]
+	var err error
+	_, err = r.Client.Revoke(context.Background(),leaseId)
+	if err != nil {
+		return
+	}
+	_, err= r.Client.KV.Delete(context.Background(), srv.GetRegisterKey())
 	if err != nil {
 		panic(err)
 	}
