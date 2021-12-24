@@ -17,6 +17,11 @@ func ExtractServiceName(appName string,key string) string {
 	return strings.Trim(replacedKey,"/")
 }
 
+func ComputePrefixKey(appName string) string  {
+	target := fmt.Sprintf("/%s/", appName)
+	return target
+}
+
 func NewClientV3(endPoints []string, timeOut uint64) *clientv3.Client {
 	cli, err := clientv3.New(clientv3.Config{
 		Endpoints:   endPoints,

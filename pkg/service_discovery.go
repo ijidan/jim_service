@@ -15,9 +15,9 @@ type ServiceDiscovery struct {
 	lock                 sync.Mutex
 }
 
-func (d *ServiceDiscovery) GetServerList(serviceName string) []string {
-	key := ComputeKey(d.AppName, serviceName)
-	rsp, err := d.Client.Get(context.Background(), key)
+func (d *ServiceDiscovery) InitServerList() []string {
+	key:=ComputePrefixKey(d.AppName)
+	rsp, err := d.Client.Get(context.Background(), key,clientv3.WithPrefix())
 	if err != nil {
 		panic(err)
 	}
@@ -25,13 +25,22 @@ func (d *ServiceDiscovery) GetServerList(serviceName string) []string {
 		return nil
 	}
 	var serverList []string
-	for _, v := range rsp.Kvs {
-		value := string(v.Value)
-		serverList = append(serverList, value)
+	for _, kv := range rsp.Kvs {
+		k:=string(kv.Key)
+		v:=string(kv.Value)
+		serviceName:=ExtractServiceName(d.AppName,k)
+		d.ServiceServerListMap[serviceName]=append(d.ServiceServerListMap[serviceName],v)
 	}
-	d.ServiceServerListMap[serviceName] = serverList
 	return serverList
 }
+func (d *ServiceDiscovery) GetServiceServerList()map[string][]string  {
+	return d.ServiceServerListMap
+}
+
+func (d *ServiceDiscovery) GetServerList(serviceName string) []string {
+	return d.ServiceServerListMap[serviceName]
+}
+
 func (d *ServiceDiscovery) PutServer(serviceName string,server string) {
 	d.lock.Lock()
 	serverList:=d.ServiceServerListMap[serviceName]
@@ -71,7 +80,6 @@ func (d *ServiceDiscovery) Watch() {
 				case mvccpb.DELETE:
 					d.DeleteServer(serviceName,value)
 					break
-
 				}
 			}
 		}
@@ -85,6 +93,7 @@ func NewServiceDiscovery(client *clientv3.Client, appName string) *ServiceDiscov
 		ServiceServerListMap: map[string][]string{},
 		lock: sync.Mutex{},
 	}
+	serviceDiscovery.InitServerList()
 	go serviceDiscovery.Watch()
 	return serviceDiscovery
 }
