@@ -3,7 +3,7 @@ app :
   ver: 1.0.1
   env: local
 rpc:
-  host: 0.0.0.0
+  host: 127.0.0.1
   port: 8083
   ttl: 5
   log: log/rpc.log

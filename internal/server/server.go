@@ -14,6 +14,7 @@ import (
 	_ "github.com/mkevac/debugcharts"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"golang.org/x/net/http2"
 	"golang.org/x/net/http2/h2c"
 	"google.golang.org/grpc"
@@ -40,7 +41,7 @@ func runHttpServer(config *config.Config) *http.ServeMux {
 	return serveMux
 }
 
-func runGrpcServer(config *config.Config) *grpc.Server {
+func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
 	opts := []grpc.ServerOption{
 		grpc.StreamInterceptor(grpc_middleware.ChainStreamServer(
 			grpc_ctxtags.StreamServerInterceptor(),
@@ -95,7 +96,6 @@ func ServiceRegister()  {
 	global.ServiceRegister.RegisterService(userService.BasicService,pingService.BasicService)
 }
 
-
 func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
 	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
@@ -107,12 +107,12 @@ func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Ha
 }
 
 
-func RunServer(config *config.Config) error {
+func RunServer(client *clientv3.Client,config *config.Config) error {
 	userService=service.NewUserService(config)
 	pingService=service.NewPingService(config)
 	address := fmt.Sprintf("%s:%d", config.Rpc.Host, config.Rpc.Port)
 	httpServer := runHttpServer(config)
-	grpcServer := runGrpcServer(config)
+	grpcServer := runGrpcServer(client,config)
 	gatewayServer := runGrpcGatewayServer(config)
 
 	httpServer.Handle("/", gatewayServer)

@@ -29,8 +29,7 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserR
 // NewUserService 获取实例
 func NewUserService(config *config.Config) *UserService {
 	instance := &UserService{BasicService:BasicService{
-		Name:    "user_service",
-		AppName: config.App.Name,
+		Name:    "service_ping",
 		Host:    config.Rpc.Host,
 		Port:    config.Rpc.Port,
 		Ttl:     config.Rpc.Ttl,

@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"context"
-	"fmt"
 	"go.etcd.io/etcd/api/v3/mvccpb"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"sync"
@@ -10,13 +9,12 @@ import (
 
 type ServiceDiscovery struct {
 	Client               *clientv3.Client
-	AppName              string
 	ServiceServerListMap map[string][]string
 	lock                 sync.Mutex
 }
 
 func (d *ServiceDiscovery) InitServerList() []string {
-	key:=ComputePrefixKey(d.AppName)
+	key:=ComputePrefixKey()
 	rsp, err := d.Client.Get(context.Background(), key,clientv3.WithPrefix())
 	if err != nil {
 		panic(err)
@@ -28,8 +26,7 @@ func (d *ServiceDiscovery) InitServerList() []string {
 	for _, kv := range rsp.Kvs {
 		k:=string(kv.Key)
 		v:=string(kv.Value)
-		serviceName:=ExtractServiceName(d.AppName,k)
-		d.ServiceServerListMap[serviceName]=append(d.ServiceServerListMap[serviceName],v)
+		d.ServiceServerListMap[k]=append(d.ServiceServerListMap[k],v)
 	}
 	return serverList
 }
@@ -64,21 +61,20 @@ func (d *ServiceDiscovery) DeleteServer(serviceName string,server string)  {
 }
 
 func (d *ServiceDiscovery) Watch() {
-	prefixKey := fmt.Sprintf("%s/", d.AppName)
-	watchCh := d.Client.Watch(context.Background(), prefixKey, clientv3.WithPrefix())
+	key:=ComputePrefixKey()
+	watchCh := d.Client.Watch(context.Background(), key, clientv3.WithPrefix())
 	for {
 		select {
 		case rsp := <-watchCh:
 			for _, event := range rsp.Events {
 				key:=string(event.Kv.Key)
 				value:=string(event.Kv.Value)
-				serviceName:=ExtractServiceName(d.AppName,key)
 				switch event.Type {
 				case mvccpb.PUT:
-					d.PutServer(serviceName,value)
+					d.PutServer(key,value)
 					break
 				case mvccpb.DELETE:
-					d.DeleteServer(serviceName,value)
+					d.DeleteServer(key,value)
 					break
 				}
 			}
@@ -86,10 +82,9 @@ func (d *ServiceDiscovery) Watch() {
 	}
 }
 
-func NewServiceDiscovery(client *clientv3.Client, appName string) *ServiceDiscovery {
+func NewServiceDiscovery(client *clientv3.Client) *ServiceDiscovery {
 	serviceDiscovery := &ServiceDiscovery{
 		Client:  client,
-		AppName: appName,
 		ServiceServerListMap: map[string][]string{},
 		lock: sync.Mutex{},
 	}

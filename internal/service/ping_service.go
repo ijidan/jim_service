@@ -29,8 +29,7 @@ func (s *PingService) Ping(c context.Context, req *proto_build.PingRequest) (*pr
 // NewPingService 获取实例
 func NewPingService(config *config.Config) *PingService {
 	instance := &PingService{BasicService:BasicService{
-		Name:    "ping_service",
-		AppName: config.App.Name,
+		Name:    "service_ping",
 		Host:    config.Rpc.Host,
 		Port:    config.Rpc.Port,
 		Ttl:     config.Rpc.Ttl,

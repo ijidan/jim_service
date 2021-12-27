@@ -10,7 +10,7 @@ var config embed.FS
 
 func main() {
 	defer global.Close()
-	err := server.RunServer(global.Config)
+	err := server.RunServer(global.ClientV3,global.Config)
 	if err != nil {
 		global.Logger.Fatalf("failed to listen：%v", err)
 	}

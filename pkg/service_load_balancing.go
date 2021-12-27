@@ -1,12 +1,15 @@
 package pkg
 
 import (
+	"github.com/sirupsen/logrus"
+	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc/resolver"
+	"strings"
 	"time"
 )
 
 const (
-	jScheme = "jim_service"
+	JScheme = "jim"
 )
 
 type JResolver struct {
@@ -16,17 +19,24 @@ type JResolver struct {
 	serviceDiscovery *ServiceDiscovery
 }
 
-func (r *JResolver) ResolveNow(o resolver.ResolveNowOptions) {}
-func (r *JResolver) Close()                                  {}
+func (r *JResolver) ResolveNow(o resolver.ResolveNowOptions) {
+	logrus.Println("resolve now")
+}
+func (r *JResolver) Close()                                  {
+	logrus.Println("resolver close")
+}
 
 func (r *JResolver) UpdateAddressStore() {
 	r.addressStore = r.serviceDiscovery.GetServiceServerList()
 }
+
 func (r *JResolver) Start() {
-	addrMap := r.addressStore[r.target.Endpoint]
+	r.UpdateAddressStore()
+	key:=strings.Trim(r.target.URL.Path,"/")
+	addrMap := r.addressStore[key]
 	addrList := make([]resolver.Address, len(addrMap))
-	for i, s := range addrMap {
-		addrList[i] = resolver.Address{Addr: s}
+	for i, v := range addrMap {
+		addrList[i] = resolver.Address{Addr: v}
 	}
 	err := r.cc.UpdateState(resolver.State{Addresses: addrList})
 	if err != nil {
@@ -59,13 +69,12 @@ func (b *JResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 	r.Start()
 	return r, nil
 }
-func (b *JResolverBuilder) Scheme() string { return jScheme }
+func (b *JResolverBuilder) Scheme() string { return JScheme }
 
-func NewJResolverBuilder(serviceDiscovery *ServiceDiscovery) *JResolverBuilder {
+func NewJResolverBuilder(client *clientv3.Client) *JResolverBuilder {
+	serviceDiscovery:=NewServiceDiscovery(client)
 	builder := &JResolverBuilder{serviceDiscovery: serviceDiscovery}
 	return builder
 }
 
-func LoadBalancingRegister(builder *JResolverBuilder) {
-	resolver.Register(builder)
-}
+
