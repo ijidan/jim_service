@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"jim_service/global"
+	"jim_service/internal/call"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/internal/service"
 	"testing"
@@ -15,10 +16,18 @@ func TestPing(t *testing.T) {
 	pingService := service.NewPingService(global.Config)
 	rsp, err := pingService.Ping(context.Background(), &proto_build.PingRequest{})
 	assert.Nil(t, err)
+	t.Log(rsp.GetMessage())
 	t.Log(rsp,err)
 }
 
-
+func TestClientPing(t *testing.T) {
+	basic:=call.NewBasicCall()
+	defer basic.Close()
+	client := proto_build.NewPingServiceClient(basic.Conn)
+	rsp, err := client.Ping(basic.DialCtx, &proto_build.PingRequest{})
+	assert.Nil(t, err)
+	t.Log(rsp.GetMessage())
+}
 
 func BenchmarkPing(b *testing.B) {
 	defer global.Close()
@@ -27,3 +36,4 @@ func BenchmarkPing(b *testing.B) {
 		_, _ = pingService.Ping(context.Background(), &proto_build.PingRequest{})
 	}
 }
+

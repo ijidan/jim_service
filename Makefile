@@ -3,7 +3,7 @@ PACKAGE =
 OUTPUT_BUILD_DIR = /data/jim_service
 
 
-.PHONY : proto tidy download build run compose  clean gormt help
+.PHONY : proto tidy download build run compose clean gormt  test help
 help:
 	@echo "make proto -  grpc编译"
 	@echo "make tidy -  Go Mod tidy"
@@ -13,6 +13,7 @@ help:
 	@echo "make compose - docker-compose直接运行 Go 代码"
 	@echo "make clean - 清除vendor"
 	@echo "make gormt - 使用gormt自动生成model"
+	@echo "make test - 执行测试代码"
 proto: download
 	@protoc -I=internal/jim_proto/proto -I=$(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
       --go_out=internal/jim_proto/ --go-grpc_out=internal/jim_proto/ --grpc-gateway_out=internal/jim_proto/ \
@@ -33,6 +34,7 @@ compose:
 clean:
 	@echo "Cleaning..."
 	@rm -rf vendor
-
 gormt:
 	@gormt
+test:
+	@go test -v  ./test
