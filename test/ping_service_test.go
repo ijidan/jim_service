@@ -9,6 +9,7 @@ import (
 	"testing"
 )
 
+
 func TestPing(t *testing.T) {
 	defer global.Close()
 	pingService := service.NewPingService(global.Config)

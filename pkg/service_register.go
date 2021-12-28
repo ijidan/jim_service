@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"context"
-	"github.com/sirupsen/logrus"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"jim_service/internal/service"
 	"time"
@@ -38,7 +37,7 @@ func (r *ServiceRegister) RegisterService(srvList ...service.BasicService) {
 	for _, srv := range srvList {
 		go r.CloseSrv(srv)
 	}
-	//go r.KeepAlive()
+	go r.KeepAlive()
 }
 
 func (r *ServiceRegister) UnRegisterService(srv service.BasicService) {
@@ -77,7 +76,6 @@ func (r *ServiceRegister) KeepAlive() {
 		select {
 		case <-ticker.C:
 			for _, _ch := range r.ServiceKeepAliveMap {
-				logrus.Println("xxxxxxxx")
 				_=<-_ch
 			}
 		}

@@ -10,7 +10,7 @@ import (
 
 func TestGetServerList(t *testing.T) {
 	defer global.Close()
-	serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3, global.Config.App.Name)
+	serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3)
 	serverList := serviceDiscovery.GetServerList("ping_service")
 	if len(serverList)==0{
 		assert.Nil(t, errors.New("server list is empty"))
@@ -21,7 +21,7 @@ func TestGetServerList(t *testing.T) {
 func BenchmarkGetServerList(b *testing.B) {
 	defer global.Close()
 	for i := 0; i < b.N; i++ {
-		serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3, global.Config.App.Name)
+		serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3)
 		_ = serviceDiscovery.GetServerList("ping_service")
 	}
 }

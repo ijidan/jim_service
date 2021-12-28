@@ -1,40 +1,38 @@
-APP = jim_service
+APPAPP = jim_service
 PACKAGE =
 OUTPUT_BUILD_DIR = /data/jim_service
 
 
-.PHONY : mod-down build run docker-compose grpc-server grpc-client clean help
+.PHONY : proto tidy download build run compose  clean gormt help
 help:
-	echo "make grpc -  grpc编译"
-	echo "make mod-tidy -  Go Mod tidy"
-	echo "make mod-down -  Go Mod下载"
-	echo "make build - 编译 Go 代码, 生成二进制文件"
-	echo "make run - 直接运行 Go 代码"
-	echo "make docker-compose - docker-compose直接运行 Go 代码"
-	echo "make grpc-server - 运行grpc server代码"
-	echo "make grpc-client - 运行grpc client代码"
-	echo "make clean - 清除vendor"
-grpc: mod-down
-	protoc -I=internal/jim_proto/proto -I=$(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
+	@echo "make proto -  grpc编译"
+	@echo "make tidy -  Go Mod tidy"
+	@echo "make download -  Go Mod下载"
+	@echo "make build - 编译 Go 代码, 生成二进制文件"
+	@echo "make run - 直接运行 Go 代码"
+	@echo "make compose - docker-compose直接运行 Go 代码"
+	@echo "make clean - 清除vendor"
+	@echo "make gormt - 使用gormt自动生成model"
+proto: download
+	@protoc -I=internal/jim_proto/proto -I=$(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
       --go_out=internal/jim_proto/ --go-grpc_out=internal/jim_proto/ --grpc-gateway_out=internal/jim_proto/ \
       --grpc-gateway_opt logtostderr=true internal/jim_proto/proto/*.proto
-mod-tidy:
-	go mod tidy
-mod-down:
-	go mod download
+tidy:
+	@go mod tidy
+download:
+	@go mod download
 build:
-	echo "Building  app..."
-	mkdir -p $(OUTPUT_BUILD_DIR)
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -o $(OUTPUT_BUILD_DIR)/$(APP) -ldflags '-w -s'
+	@echo "Building  app..."
+	@mkdir -p $(OUTPUT_BUILD_DIR)
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -o $(OUTPUT_BUILD_DIR)/$(APP) -ldflags '-w -s'
 run: build
-	go run $(OUTPUT_BUILD_DIR)/$(APP)
-docker-compose:
-	echo "Building $(app) app in docker..."
-	docker-compose up -d
-grpc-server: mod-down
-	go run cmd/grpc/server/main.go
-grpc-client:mod-down
-	go run cmd/grpc/client/main.go
+	@go run $(OUTPUT_BUILD_DIR)/$(APP)
+compose:
+	@echo "Building $(app) app in docker..."
+	@docker-compose up -d
 clean:
-	echo "Cleaning..."
-	rm -rf vendor
+	@echo "Cleaning..."
+	@rm -rf vendor
+
+gormt:
+	@gormt
