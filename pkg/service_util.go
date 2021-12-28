@@ -1,11 +1,9 @@
 package pkg
 
 import (
-	"encoding/json"
 	"fmt"
 	clientv3 "go.etcd.io/etcd/client/v3"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/balancer/roundrobin"
 	"time"
 )
 
@@ -24,19 +22,12 @@ func NewClientV3(endPoints []string, timeOut uint64) *clientv3.Client {
 	}
 	return cli
 }
-func GetServerConfigMap()  string{
-	serverConfigMap:=map[string]interface{}{"loadBalancingPolicy":roundrobin.Name}
-	serverConfigBytes,_:=json.Marshal(serverConfigMap)
-	serverConfigJson:=string(serverConfigBytes)
-	return serverConfigJson
-}
+
 func GetRpcConn(serviceName string) (*grpc.ClientConn,error) {
 	target:=fmt.Sprintf("%s:///%s",JScheme,serviceName)
-	serverConfigJson:=GetServerConfigMap()
 	conn, err := grpc.Dial(target,
 		grpc.WithInsecure(),
 		grpc.WithBlock(),
-		grpc.WithTimeout(10),
-		grpc.WithDefaultServiceConfig(serverConfigJson))
+		grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`))
 	return conn,err
 }

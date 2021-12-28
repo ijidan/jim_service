@@ -31,7 +31,6 @@ func (r *JResolver) UpdateAddressStore() {
 }
 
 func (r *JResolver) Start() {
-	r.UpdateAddressStore()
 	key:=strings.Trim(r.target.URL.Path,"/")
 	addrMap := r.addressStore[key]
 	addrList := make([]resolver.Address, len(addrMap))
@@ -63,7 +62,7 @@ func (b *JResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn,
 	r := &JResolver{
 		target:           target,
 		cc:               cc,
-		addressStore:     map[string][]string{},
+		addressStore:     b.serviceDiscovery.GetServiceServerList(),
 		serviceDiscovery: b.serviceDiscovery,
 	}
 	r.Start()
