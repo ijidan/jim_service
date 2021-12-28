@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"github.com/spf13/cast"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/internal/model_gormt"
@@ -17,21 +18,32 @@ type UserService struct {
 }
 
 func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserRequest) (*proto_build.CreateUserResponse, error) {
-	rsp := proto_build.CreateUserResponse{
-		User: nil,
-	}
-
 	gender:=proto_build.Gender_value[cast.ToString(req.GetGender())]
 	userMgr:=model_gormt.UserMgr(pkg.Db)
 	user:=&model_gormt.User{
-		Nickname:  req.Nickname,
-		Password:  req.Password,
+		Nickname:  req.GetNickname(),
+		Password:  req.GetPassword(),
 		Key:       "",
 		Gender:   cast.ToString(gender),
-		AvatarURL: req.AvatarUrl,
+		AvatarURL: req.GetAvatarUrl(),
 		Extra:     "",
 	}
 	userMgr.Create(user)
+
+	rspUser:=&proto_build.User{
+		Id:        user.ID,
+		Nickname:  req.GetNickname(),
+		Gender:    req.GetGender(),
+		AvatarUrl: req.AvatarUrl,
+		Extra:     user.Extra,
+		CreatedAt: timestamppb.New(user.CreatedAt),
+		UpdatedAt: timestamppb.New(user.UpdatedAt),
+		DeletedAt: timestamppb.New(user.DeletedAt),
+	}
+	rsp := proto_build.CreateUserResponse{
+		User: rspUser,
+	}
+
 	s.AddSpan(c,s.GetFunName(),req,rsp.String())
 	return &rsp, nil
 }

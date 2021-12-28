@@ -27,6 +27,6 @@ func TestCreateUser(t *testing.T) {
 	}
 	rsp, err2 := client.CreateUser(context.Background(), req)
 	assert.Nil(t, err2)
-	t.Log(rsp.String())
+	t.Log(rsp.User.String())
 
 }
