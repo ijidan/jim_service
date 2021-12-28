@@ -1,27 +1,32 @@
 package test
 
 import (
-	"errors"
+	"context"
+	"fmt"
+	"github.com/golang-module/carbon/v2"
 	"github.com/stretchr/testify/assert"
-	"jim_service/global"
+	"jim_service/internal/call"
+	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/pkg"
 	"testing"
 )
 
-func TestGetServerList(t *testing.T) {
-	defer global.Close()
-	serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3)
-	serverList := serviceDiscovery.GetServerList("ping_service")
-	if len(serverList)==0{
-		assert.Nil(t, errors.New("server list is empty"))
-	}
-	t.Log(serverList)
-}
+var serviceUser = "service_user"
 
-func BenchmarkGetServerList(b *testing.B) {
-	defer global.Close()
-	for i := 0; i < b.N; i++ {
-		serviceDiscovery := pkg.NewServiceDiscovery(global.ClientV3)
-		_ = serviceDiscovery.GetServerList("ping_service")
+func TestCreateUser(t *testing.T) {
+	basic:=call.NewBasicCall(pkg.Conf.Rpc.Host,pkg.Conf.Rpc.Port)
+	defer basic.Close()
+	t.Log(basic)
+	client := proto_build.NewUserServiceClient(basic.Conn)
+	req := &proto_build.CreateUserRequest{
+		Nickname:    fmt.Sprintf("jidan%d",carbon.Now().Timestamp()),
+		Gender:      proto_build.Gender_Male,
+		AvatarUrl:   "https://cdn.libravatar.org/static/img/nobody/80.png",
+		Password:    "123456",
+		PasswordRpt: "123456",
 	}
+	rsp, err2 := client.CreateUser(context.Background(), req)
+	assert.Nil(t, err2)
+	t.Log(rsp.String())
+
 }

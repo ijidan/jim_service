@@ -75,7 +75,7 @@ func (obj *_UserMgr) WithKey(key string) Option {
 }
 
 // WithGender gender获取 性别，0:未知；1:男；2:女
-func (obj *_UserMgr) WithGender(gender bool) Option {
+func (obj *_UserMgr) WithGender(gender string) Option {
 	return optionFunc(func(o *options) { o.query["gender"] = gender })
 }
 
@@ -191,14 +191,14 @@ func (obj *_UserMgr) GetBatchFromKey(keys []string) (results []*User, err error)
 }
 
 // GetFromGender 通过gender获取内容 性别，0:未知；1:男；2:女
-func (obj *_UserMgr) GetFromGender(gender bool) (results []*User, err error) {
+func (obj *_UserMgr) GetFromGender(gender string) (results []*User, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`gender` = ?", gender).Find(&results).Error
 
 	return
 }
 
 // GetBatchFromGender 批量查找 性别，0:未知；1:男；2:女
-func (obj *_UserMgr) GetBatchFromGender(genders []bool) (results []*User, err error) {
+func (obj *_UserMgr) GetBatchFromGender(genders []string) (results []*User, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`gender` IN (?)", genders).Find(&results).Error
 
 	return

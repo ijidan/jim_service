@@ -20,10 +20,10 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"jim_service/config"
-	"jim_service/global"
 	"jim_service/internal/interceptor"
 	"jim_service/internal/jim_proto/proto_build"
 	service "jim_service/internal/service"
+	"jim_service/pkg"
 	"net/http"
 	_ "net/http/pprof"
 	"strings"
@@ -93,7 +93,9 @@ func runGrpcGatewayServer(config *config.Config) *gwruntime.ServeMux {
 }
 
 func ServiceRegister()  {
-	global.ServiceRegister.RegisterService(userService.BasicService,pingService.BasicService)
+	clientV3:=service.NewClientV3(pkg.Conf.Etcd.Host,pkg.Conf.Etcd.Timeout)
+	serviceRegister:=service.NewServiceRegister(clientV3,pkg.Conf.App.Name)
+	serviceRegister.RegisterService(userService.BasicService,pingService.BasicService)
 }
 
 func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {

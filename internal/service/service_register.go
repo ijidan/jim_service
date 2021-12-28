@@ -1,22 +1,21 @@
-package pkg
+package service
 
 import (
 	"context"
 	clientv3 "go.etcd.io/etcd/client/v3"
-	"jim_service/internal/service"
 	"time"
 )
 
 type ServiceRegister struct {
 	Client              *clientv3.Client
 	AppName             string
-	Service             service.BasicService
-	ServiceLeaseIdMap   map[service.BasicService]clientv3.LeaseID
-	ServiceKeepAliveMap map[service.BasicService]<-chan *clientv3.LeaseKeepAliveResponse
-	ServiceCloseMap     map[service.BasicService]chan bool
+	Service             BasicService
+	ServiceLeaseIdMap   map[BasicService]clientv3.LeaseID
+	ServiceKeepAliveMap map[BasicService]<-chan *clientv3.LeaseKeepAliveResponse
+	ServiceCloseMap     map[BasicService]chan bool
 }
 
-func (r *ServiceRegister) RegisterService(srvList ...service.BasicService) {
+func (r *ServiceRegister) RegisterService(srvList ...BasicService) {
 	for _, srv := range srvList {
 		LeaseRsp, err1 := r.Client.Grant(context.Background(), srv.GetTTL())
 		if err1 != nil {
@@ -40,7 +39,7 @@ func (r *ServiceRegister) RegisterService(srvList ...service.BasicService) {
 	go r.KeepAlive()
 }
 
-func (r *ServiceRegister) UnRegisterService(srv service.BasicService) {
+func (r *ServiceRegister) UnRegisterService(srv BasicService) {
 	leaseId := r.ServiceLeaseIdMap[srv]
 	var err error
 	_, err = r.Client.Revoke(context.Background(), leaseId)
@@ -53,12 +52,12 @@ func (r *ServiceRegister) UnRegisterService(srv service.BasicService) {
 	}
 }
 
-func (r *ServiceRegister) Stop(srv service.BasicService) {
+func (r *ServiceRegister) Stop(srv BasicService) {
 	closeCh := r.ServiceCloseMap[srv]
 	closeCh <- true
 }
 
-func (r *ServiceRegister) CloseSrv(srv service.BasicService) {
+func (r *ServiceRegister) CloseSrv(srv BasicService) {
 	closeCh := r.ServiceCloseMap[srv]
 	for {
 		select {
@@ -86,9 +85,9 @@ func NewServiceRegister(client *clientv3.Client, appName string) *ServiceRegiste
 	serviceRegister := &ServiceRegister{
 		Client:              client,
 		AppName:             appName,
-		ServiceLeaseIdMap:   make(map[service.BasicService]clientv3.LeaseID),
-		ServiceKeepAliveMap: make(map[service.BasicService]<-chan *clientv3.LeaseKeepAliveResponse),
-		ServiceCloseMap:     make(map[service.BasicService]chan bool),
+		ServiceLeaseIdMap:   make(map[BasicService]clientv3.LeaseID),
+		ServiceKeepAliveMap: make(map[BasicService]<-chan *clientv3.LeaseKeepAliveResponse),
+		ServiceCloseMap:     make(map[BasicService]chan bool),
 	}
 	return serviceRegister
 }

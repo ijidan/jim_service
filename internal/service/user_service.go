@@ -2,9 +2,12 @@ package service
 
 import (
 	"context"
-	"github.com/opentracing/opentracing-go"
+	"github.com/golang/protobuf/ptypes/timestamp"
+	"github.com/spf13/cast"
 	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
+	"jim_service/internal/model_gormt"
+	"jim_service/pkg"
 )
 
 // UserService Hello服务
@@ -17,15 +20,44 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserR
 	rsp := proto_build.CreateUserResponse{
 		User: nil,
 	}
-	span, _ := opentracing.StartSpanFromContext(c, s.GetName())
-	defer func() {
-		span.SetTag("request", req)
-		span.SetTag("reply", rsp.String())
-		span.Finish()
-	}()
+
+	gender:=proto_build.Gender_value[cast.ToString(req.GetGender())]
+	userMgr:=model_gormt.UserMgr(pkg.Db)
+	user:=&model_gormt.User{
+		Nickname:  req.Nickname,
+		Password:  req.Password,
+		Key:       "",
+		Gender:   cast.ToString(gender),
+		AvatarURL: req.AvatarUrl,
+		Extra:     "",
+	}
+	userMgr.Create(user)
+	s.AddSpan(c,s.GetFunName(),req,rsp.String())
 	return &rsp, nil
 }
 
+func (s *UserService)GetUser(c context.Context,req *proto_build.GetUserRequest)(*proto_build.GetUserResponse,error)  {
+	id:=req.GetId()
+	userMgr:=model_gormt.UserMgr(pkg.Db)
+	user,err:=userMgr.GetFromID(id)
+	if err!=nil{
+		panic(err)
+	}
+	pbUser:=&proto_build.User{
+		Id:        user.ID,
+		Nickname:  user.Nickname,
+		Gender:    proto_build.Gender_Male,
+		AvatarUrl: user.AvatarURL,
+		Extra:     user.Extra,
+		CreatedAt: &timestamp.Timestamp{Seconds: user.CreatedAt.Unix()},
+		UpdatedAt: &timestamp.Timestamp{Seconds: user.UpdatedAt.Unix()},
+		DeletedAt: &timestamp.Timestamp{Seconds: user.DeletedAt.Unix()},
+	}
+	rsp:=&proto_build.GetUserResponse{
+		User: pbUser,
+	}
+	return rsp,nil
+}
 // NewUserService 获取实例
 func NewUserService(config *config.Config) *UserService {
 	instance := &UserService{BasicService:BasicService{

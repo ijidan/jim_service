@@ -5,8 +5,8 @@ import (
 	"flag"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc/resolver"
-	"jim_service/global"
 	"jim_service/internal/jim_proto/proto_build"
+	"jim_service/internal/service"
 	"jim_service/pkg"
 	"testing"
 )
@@ -15,18 +15,21 @@ import (
 var serviceName=flag.String("service_ping","service_ping","service name required!")
 
 func TestGetServiceServerList(t *testing.T) {
-	defer global.Close()
+	defer pkg.Close()
 	flag.Parse()
-	serviceDiscovery:=pkg.NewServiceDiscovery(global.ClientV3)
+
+	clientV3:=service.NewClientV3(pkg.Conf.Etcd.Host,pkg.Conf.Etcd.Timeout)
+	serviceDiscovery:=service.NewServiceDiscovery(clientV3)
 	serverList:=serviceDiscovery.GetServerList(*serviceName)
 	t.Log(serverList)
 }
 
 func TestPingService(t *testing.T)  {
-	defer global.Close()
-	builder:=pkg.NewJResolverBuilder(global.ClientV3)
+	defer pkg.Close()
+	clientV3:=service.NewClientV3(pkg.Conf.Etcd.Host,pkg.Conf.Etcd.Timeout)
+	builder:=service.NewJResolverBuilder(clientV3)
 	resolver.Register(builder)
-	conn, err := pkg.GetRpcConn("service_ping")
+	conn, err := service.GetRpcConn("service_ping")
 	assert.Nil(t, err)
 	client := proto_build.NewPingServiceClient(conn)
 	rsp, err1 := client.Ping(context.Background(), &proto_build.PingRequest{})

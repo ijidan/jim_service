@@ -2,7 +2,6 @@ APPAPP = jim_service
 PACKAGE =
 OUTPUT_BUILD_DIR = /data/jim_service
 
-
 .PHONY : proto tidy download build run compose clean gormt  test help
 help:
 	@echo "make proto -  grpc编译"
@@ -14,6 +13,8 @@ help:
 	@echo "make clean - 清除vendor"
 	@echo "make gormt - 使用gormt自动生成model"
 	@echo "make test - 执行测试代码"
+	@echo "make grpcurl - 查看当前的服务"
+	@echo "make grpcuri - grpcui"
 proto: download
 	@protoc -I=internal/jim_proto/proto -I=$(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
       --go_out=internal/jim_proto/ --go-grpc_out=internal/jim_proto/ --grpc-gateway_out=internal/jim_proto/ \
@@ -38,3 +39,7 @@ gormt:
 	@gormt
 test:
 	@go test -v  ./test
+grpcurl:
+	@ grpcurl -plaintext 127.0.0.1:8083 list
+grpcui:run
+	@grpcui -plaintext 127.0.0.1:8083

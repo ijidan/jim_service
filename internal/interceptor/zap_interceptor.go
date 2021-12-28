@@ -7,11 +7,11 @@ import (
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"jim_service/config"
-	"jim_service/global"
+	"jim_service/pkg"
 )
 
 func ZapInterceptor() *zap.Logger {
-	if global.Config.App.Env==config.EnvLocal || global.Config.App.Env==config.EnvTest{
+	if pkg.Conf.App.Env==config.EnvLocal || pkg.Conf.App.Env==config.EnvTest{
 		return notProductionZap()
 	}
 	return productionZap()
@@ -19,7 +19,7 @@ func ZapInterceptor() *zap.Logger {
 
 func productionZap() *zap.Logger  {
 	w := zapcore.AddSync(&lumberjack.Logger{
-		Filename:  global.Config.Rpc.Log,
+		Filename:  pkg.Conf.Rpc.Log,
 		MaxSize:   1024, //MB
 		LocalTime: true,
 	})

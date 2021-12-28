@@ -19,7 +19,7 @@ func (c *PingCall) Ping()  (*proto_build.PingResponse, error){
 	return rsp,err
 }
 
-func NewPingCall() *PingCall  {
-	basic:=NewBasicCall()
+func NewPingCall(host string,port uint) *PingCall  {
+	basic:=NewBasicCall(host,port)
 	return &PingCall{BasicCall:basic}
 }

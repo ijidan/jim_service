@@ -1,4 +1,4 @@
-package pkg
+package service
 
 import (
 	"github.com/sirupsen/logrus"

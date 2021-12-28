@@ -220,7 +220,7 @@ type User struct {
 	Nickname  string    `gorm:"column:nickname;type:varchar(20);not null;default:''"`     // 昵称
 	Password  string    `gorm:"column:password;type:varchar(20);not null;default:''"`     // 密码
 	Key       string    `gorm:"column:key;type:varchar(20);not null;default:''"`          // 加密key
-	Gender    bool      `gorm:"column:gender;type:tinyint(1);not null;default:0"`         // 性别，0:未知；1:男；2:女
+	Gender    string    `gorm:"column:gender;type:enum('1','2');not null"`                // 性别，0:未知；1:男；2:女
 	AvatarURL string    `gorm:"column:avatar_url;type:varchar(1024);not null;default:''"` // 用户头像链接
 	Extra     string    `gorm:"column:extra;type:varchar(1024);not null;default:''"`      // 附加属性
 	CreatedAt time.Time `gorm:"column:created_at;type:datetime"`                          // 创建时间

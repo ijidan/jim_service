@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"jim_service/global"
 	"jim_service/pkg"
 )
 var userId uint64
@@ -15,7 +14,7 @@ var genTokenCmd = &cobra.Command{
 	Use:   "gen_token",
 	Short: "gen token",
 	Run: func(cmd *cobra.Command, args []string) {
-		token:=pkg.GenJwtToken(userId,global.Config.Jwt.Secret)
+		token:=pkg.GenJwtToken(userId,pkg.Conf.Jwt.Secret)
 		fmt.Printf( "token generated：%s",token)
 	},
 }

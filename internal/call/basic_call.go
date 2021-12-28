@@ -6,7 +6,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
-	"jim_service/global"
 	"jim_service/pkg"
 	"time"
 )
@@ -18,21 +17,19 @@ type BasicCall struct {
 	DialCancel context.CancelFunc
 }
 
-func (c *BasicCall) GetClientConn() (*grpc.ClientConn, context.CancelFunc) {
+func (c *BasicCall) GetClientConn(host string,port uint) (*grpc.ClientConn, context.CancelFunc) {
 	defer func() {
-		global.Close()
+		pkg.Close()
 	}()
-	rpc := global.Config.Rpc
-	address := fmt.Sprintf("%s:%d", rpc.Host, rpc.Port)
+	address := fmt.Sprintf("%s:%d", host, port)
 	connCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	clientToken := pkg.NewClientToken("")
-	serverConfigJson:=pkg.GetServerConfigMap()
 	conn, err := grpc.DialContext(connCtx, address,
 		grpc.WithInsecure(),
 		grpc.WithBlock(),
 		grpc.WithPerRPCCredentials(clientToken),
-		grpc.WithDefaultServiceConfig(serverConfigJson),
+		grpc.WithDefaultServiceConfig(`{"loadBalancingConfig": [{"round_robin":{}}]}`),
 		)
 	if err != nil {
 		logrus.Fatalf("did not connect: %v", err)
@@ -55,9 +52,9 @@ func (c *BasicCall) Close() {
 	c.DialCancel()
 }
 
-func NewBasicCall() *BasicCall  {
+func NewBasicCall(host string,port uint) *BasicCall  {
 	basic:=&BasicCall{}
-	basic.GetClientConn()
+	basic.GetClientConn(host,port)
 	basic.GetContext()
 	return basic
 }
