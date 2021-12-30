@@ -10,6 +10,7 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+	grpc_validator "github.com/grpc-ecosystem/go-grpc-middleware/validator"
 	gwruntime "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	_ "github.com/mkevac/debugcharts"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -50,6 +51,7 @@ func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
 			grpc_auth.StreamServerInterceptor(interceptor.AuthInterceptor),
 			grpc_recovery.StreamServerInterceptor(interceptor.RecoveryInterceptor()),
 			ratelimit.StreamServerInterceptor(interceptor.NewLimiterInterceptor()),
+			grpc_validator.StreamServerInterceptor(),
 		)),
 
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
@@ -59,6 +61,7 @@ func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
 			grpc_auth.UnaryServerInterceptor(interceptor.AuthInterceptor),
 			grpc_recovery.UnaryServerInterceptor(interceptor.RecoveryInterceptor()),
 			ratelimit.UnaryServerInterceptor(interceptor.NewLimiterInterceptor()),
+			grpc_validator.UnaryServerInterceptor(),
 		)),
 
 	}

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/opentracing/opentracing-go"
-	"runtime"
 )
 
 
@@ -30,12 +29,12 @@ func (s *BasicService) GetTTL() int64 {
 	return s.Ttl
 }
 
-func (s *BasicService) GetFunName()string {
-	pc := make([]uintptr,1)
-	runtime.Callers(2,pc)
-	f := runtime.FuncForPC(pc[0])
-	return f.Name()
-}
+//func (s *BasicService) GetFunName()string {
+//	pc := make([]uintptr,1)
+//	runtime.Callers(2,pc)
+//	f := runtime.FuncForPC(pc[0])
+//	return f.Name()
+//}
 
 func (s *BasicService)AddSpan(c context.Context,funcName string,req interface{},rsp interface{})  {
 	span, _ := opentracing.StartSpanFromContext(c, s.Name)

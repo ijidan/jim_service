@@ -2,81 +2,60 @@ package service
 
 import (
 	"context"
-	"github.com/golang/protobuf/ptypes/timestamp"
-	"github.com/spf13/cast"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"fmt"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
-	"jim_service/internal/model_gormt"
+	"jim_service/internal/repository"
 	"jim_service/pkg"
 )
 
-// UserService Hello服务
 type UserService struct {
 	BasicService
 	proto_build.UnimplementedUserServiceServer
 }
 
 func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserRequest) (*proto_build.CreateUserResponse, error) {
-	gender:=proto_build.Gender_value[cast.ToString(req.GetGender())]
-	userMgr:=model_gormt.UserMgr(pkg.Db)
-	user:=&model_gormt.User{
-		Nickname:  req.GetNickname(),
-		Password:  req.GetPassword(),
-		Key:       "",
-		Gender:   cast.ToString(gender),
-		AvatarURL: req.GetAvatarUrl(),
-		Extra:     "",
+	gender := repository.GenderProtoToDb[req.Gender]
+	user := repository.CreateUser(pkg.Db, req.Nickname, req.Password, gender, req.AvatarUrl, "")
+	protoUser,err:= repository.GetProtoUserByUserId(pkg.Db, user.ID)
+	if err!=nil{
+		return nil,status.Error(codes.NotFound,"creat user error")
 	}
-	userMgr.Create(user)
-
-	rspUser:=&proto_build.User{
-		Id:        user.ID,
-		Nickname:  req.GetNickname(),
-		Gender:    req.GetGender(),
-		AvatarUrl: req.AvatarUrl,
-		Extra:     user.Extra,
-		CreatedAt: timestamppb.New(user.CreatedAt),
-		UpdatedAt: timestamppb.New(user.UpdatedAt),
-		DeletedAt: timestamppb.New(user.DeletedAt),
-	}
-	rsp := proto_build.CreateUserResponse{
-		User: rspUser,
-	}
-
-	s.AddSpan(c,s.GetFunName(),req,rsp.String())
+	rsp := proto_build.CreateUserResponse{User: protoUser}
+	defer s.AddSpan(c, pkg.GetFuncName(), req, rsp.String())
 	return &rsp, nil
 }
 
-func (s *UserService)GetUser(c context.Context,req *proto_build.GetUserRequest)(*proto_build.GetUserResponse,error)  {
-	id:=req.GetId()
-	userMgr:=model_gormt.UserMgr(pkg.Db)
-	user,err:=userMgr.GetFromID(id)
-	if err!=nil{
-		panic(err)
+func (s *UserService) GetUser(c context.Context, req *proto_build.GetUserRequest) (*proto_build.GetUserResponse, error) {
+	id := req.GetId()
+	protoUser,err:= repository.GetProtoUserByUserId(pkg.Db, id)
+	if err!=nil || protoUser.GetId()==0{
+		return nil,status.Error(codes.NotFound,fmt.Sprintf("user not found for id:%d",id))
 	}
-	pbUser:=&proto_build.User{
-		Id:        user.ID,
-		Nickname:  user.Nickname,
-		Gender:    proto_build.Gender_Male,
-		AvatarUrl: user.AvatarURL,
-		Extra:     user.Extra,
-		CreatedAt: &timestamp.Timestamp{Seconds: user.CreatedAt.Unix()},
-		UpdatedAt: &timestamp.Timestamp{Seconds: user.UpdatedAt.Unix()},
-		DeletedAt: &timestamp.Timestamp{Seconds: user.DeletedAt.Unix()},
+	rsp := &proto_build.GetUserResponse{
+		User: protoUser,
 	}
-	rsp:=&proto_build.GetUserResponse{
-		User: pbUser,
-	}
-	return rsp,nil
+	defer s.AddSpan(c, pkg.GetFuncName(), req, rsp.String())
+	return rsp, nil
 }
-// NewUserService 获取实例
+
+func (s *UserService) QueryUser(c context.Context, req *proto_build.QueryUserRequest) (*proto_build.QueryUserResponse, error) {
+	protoUserList, pager, _ := repository.QueryProtoUser(pkg.Db, req.GetKeyword(), req.GetPage(), req.GetPageSize())
+	rsp := &proto_build.QueryUserResponse{
+		Pager: pager,
+		User:  protoUserList,
+	}
+	return rsp, nil
+}
+
 func NewUserService(config *config.Config) *UserService {
-	instance := &UserService{BasicService:BasicService{
-		Name:    "service_ping",
-		Host:    config.Rpc.Host,
-		Port:    config.Rpc.Port,
-		Ttl:     config.Rpc.Ttl,
+	instance := &UserService{BasicService: BasicService{
+		Name: "service_ping",
+		Host: config.Rpc.Host,
+		Port: config.Rpc.Port,
+		Ttl:  config.Rpc.Ttl,
 	}}
 	return instance
 }

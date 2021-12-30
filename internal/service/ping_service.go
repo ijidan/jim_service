@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"github.com/opentracing/opentracing-go"
 	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
+	"jim_service/pkg"
 )
 
 // PingService Hello服务
@@ -17,12 +17,7 @@ func (s *PingService) Ping(c context.Context, req *proto_build.PingRequest) (*pr
 	rsp := &proto_build.PingResponse{
 		Message: "pong",
 	}
-	span, _ := opentracing.StartSpanFromContext(c, s.GetName())
-	defer func() {
-		span.SetTag("request", req)
-		span.SetTag("reply", rsp.String())
-		span.Finish()
-	}()
+	defer s.AddSpan(c,pkg.GetFuncName(),req,rsp.String())
 	return rsp, nil
 }
 

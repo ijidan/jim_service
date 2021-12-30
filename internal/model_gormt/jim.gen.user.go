@@ -69,11 +69,6 @@ func (obj *_UserMgr) WithPassword(password string) Option {
 	return optionFunc(func(o *options) { o.query["password"] = password })
 }
 
-// WithKey key获取 加密key
-func (obj *_UserMgr) WithKey(key string) Option {
-	return optionFunc(func(o *options) { o.query["key"] = key })
-}
-
 // WithGender gender获取 性别，0:未知；1:男；2:女
 func (obj *_UserMgr) WithGender(gender string) Option {
 	return optionFunc(func(o *options) { o.query["gender"] = gender })
@@ -172,20 +167,6 @@ func (obj *_UserMgr) GetFromPassword(password string) (results []*User, err erro
 // GetBatchFromPassword 批量查找 密码
 func (obj *_UserMgr) GetBatchFromPassword(passwords []string) (results []*User, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`password` IN (?)", passwords).Find(&results).Error
-
-	return
-}
-
-// GetFromKey 通过key获取内容 加密key
-func (obj *_UserMgr) GetFromKey(key string) (results []*User, err error) {
-	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`key` = ?", key).Find(&results).Error
-
-	return
-}
-
-// GetBatchFromKey 批量查找 加密key
-func (obj *_UserMgr) GetBatchFromKey(keys []string) (results []*User, err error) {
-	err = obj.DB.WithContext(obj.ctx).Model(User{}).Where("`key` IN (?)", keys).Find(&results).Error
 
 	return
 }

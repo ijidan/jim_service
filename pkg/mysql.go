@@ -23,6 +23,7 @@ func GetDbInstance(conf *config.Config) *gorm.DB {
 			NamingStrategy: schema.NamingStrategy{
 				SingularTable: true,
 			},
+			//Logger: logger.Default.LogMode(logger.Info),
 		})
 		if err != nil {
 			panic(err)
@@ -34,6 +35,8 @@ func GetDbInstance(conf *config.Config) *gorm.DB {
 		sqlDB.SetMaxOpenConns(100)
 		// SetConnMaxLifetime 设置了连接可复用的最大时间。
 		sqlDB.SetConnMaxLifetime(time.Hour)
+
 	})
+
 	return instanceDb
 }

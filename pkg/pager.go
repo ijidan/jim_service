@@ -1,12 +1,35 @@
 package pkg
 
 type Pager struct {
-	Code         int32         `json:"code"`
-	BusinessCode int32         `json:"business_code"`
-	Message      string        `json:"message"`
-	List         []interface{} `json:"list"`
-	Total        uint32        `json:"total"`
-	Page         uint32        `json:"page"`
-	PageSize     uint32        `json:"page_size"`
-	PageTotal    int32         `json:"page_total"`
+	Page       uint64      `json:"page,omitempty;query:page"`
+	PageSize   uint64      `json:"page_size,omitempty;query:page_size"`
+	TotalRows  uint64      `json:"total_rows"`
+	TotalPages uint64      `json:"total_pages"`
+	Rows       interface{} `json:"rows"`
+}
+
+func (p *Pager) GetPage() uint64 {
+	if p.Page == 0 {
+		p.Page = 1
+	}
+	return p.Page
+}
+
+func (p *Pager) GetPageSize() uint64 {
+	if p.PageSize == 0 {
+		p.PageSize = 10
+	}
+	return p.PageSize
+}
+
+func (p *Pager) GetTotalRows() uint64 {
+	return p.TotalRows
+}
+
+func (p *Pager) GetTotalPages() uint64  {
+	return p.TotalPages
+}
+
+func (p *Pager) GetRows() interface{}  {
+	return p.Rows
 }
