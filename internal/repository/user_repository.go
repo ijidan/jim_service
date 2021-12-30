@@ -2,6 +2,8 @@ package repository
 
 import (
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 	"jim_service/internal/jim_proto/proto_build"
@@ -35,9 +37,11 @@ func ConvertUserToProtoUser(user model_gormt.User) *proto_build.User {
 	return protoUser
 }
 
-func CreateUser(db *gorm.DB, nickName string, password string, gender string, avatarUrl string, extra string) *model_gormt.User {
-	passwordHash, _ := pkg.HashPassword(password)
-	userMgr := model_gormt.UserMgr(db)
+func CreateUser(db *gorm.DB, nickName string, password string, gender string, avatarUrl string, extra string) (*model_gormt.User, error) {
+	passwordHash, err := pkg.HashPassword(password)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
 	user := &model_gormt.User{
 		Nickname:  nickName,
 		Password:  passwordHash,
@@ -45,17 +49,27 @@ func CreateUser(db *gorm.DB, nickName string, password string, gender string, av
 		AvatarURL: avatarUrl,
 		Extra:     extra,
 	}
-	userMgr.Create(user)
-	return user
+	err1 := db.Create(user).Error
+	if err1 != nil {
+		return nil, status.Error(codes.Internal, err1.Error())
+	}
+	return user, nil
 }
-func GetProtoUserByUserId(db *gorm.DB, userId uint64) (*proto_build.User,error) {
-	userMgr := model_gormt.UserMgr(db)
-	user, err := userMgr.GetFromID(userId)
+
+func GetProtoUserByUserId(db *gorm.DB, userId uint64) (*proto_build.User, error) {
+	var user model_gormt.User
+	err := db.Where(model_gormt.UserColumns.ID, userId).First(&user).Error
 	if err != nil {
-		return nil,errors.New("not found")
+		var code codes.Code
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			code = codes.NotFound
+		} else {
+			code = codes.Internal
+		}
+		return nil, status.Error(code, err.Error())
 	}
 	protoUser := ConvertUserToProtoUser(user)
-	return protoUser,nil
+	return protoUser, nil
 }
 
 func QueryProtoUser(db *gorm.DB, keyword string, page uint64, pageSize uint64) ([]*proto_build.User, *proto_build.Pager, error) {
@@ -64,10 +78,12 @@ func QueryProtoUser(db *gorm.DB, keyword string, page uint64, pageSize uint64) (
 
 	var model model_gormt.User
 	var rows []model_gormt.User
-	order:=model_gormt.UserColumns.ID+" desc"
-	pager, _ := QueryPager(db, &model, &rows, order, page, pageSize, where, whereValue)
+	order := model_gormt.UserColumns.ID + " desc"
+	pager, err := QueryPager(db, &model, &rows, order, page, pageSize, where, whereValue)
+	if err!=nil{
+		return nil, nil, err
+	}
 	var protoUserList []*proto_build.User
-
 	if len(rows) > 0 {
 		for _, v := range rows {
 			protoUser := ConvertUserToProtoUser(v)

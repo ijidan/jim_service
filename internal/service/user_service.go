@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"jim_service/config"
@@ -17,11 +16,17 @@ type UserService struct {
 }
 
 func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserRequest) (*proto_build.CreateUserResponse, error) {
+	if req.Password!=req.PasswordRpt{
+		return nil,status.Error(codes.Internal,"password ,password_rpt not the same")
+	}
 	gender := repository.GenderProtoToDb[req.Gender]
-	user := repository.CreateUser(pkg.Db, req.Nickname, req.Password, gender, req.AvatarUrl, "")
-	protoUser,err:= repository.GetProtoUserByUserId(pkg.Db, user.ID)
+	user,err := repository.CreateUser(pkg.Db, req.Nickname, req.Password, gender, req.AvatarUrl, "")
 	if err!=nil{
-		return nil,status.Error(codes.NotFound,"creat user error")
+		return nil,err
+	}
+	protoUser,err1:= repository.GetProtoUserByUserId(pkg.Db, user.ID)
+	if err!=nil{
+		return nil,err1
 	}
 	rsp := proto_build.CreateUserResponse{User: protoUser}
 	defer s.AddSpan(c, pkg.GetFuncName(), req, rsp.String())
@@ -31,8 +36,8 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserR
 func (s *UserService) GetUser(c context.Context, req *proto_build.GetUserRequest) (*proto_build.GetUserResponse, error) {
 	id := req.GetId()
 	protoUser,err:= repository.GetProtoUserByUserId(pkg.Db, id)
-	if err!=nil || protoUser.GetId()==0{
-		return nil,status.Error(codes.NotFound,fmt.Sprintf("user not found for id:%d",id))
+	if err!=nil{
+		return nil,err
 	}
 	rsp := &proto_build.GetUserResponse{
 		User: protoUser,

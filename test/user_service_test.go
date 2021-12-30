@@ -31,8 +31,8 @@ func TestCreateUser(t *testing.T) {
 		Nickname:    fmt.Sprintf("jidan%d",carbon.Now().Timestamp()),
 		Gender:      proto_build.Gender_Male,
 		AvatarUrl:   "https://cdn.libravatar.org/static/img/nobody/80.png",
-		Password:    "123456",
-		PasswordRpt: "123456",
+		Password:    "jidan123456",
+		PasswordRpt: "jidan123456",
 	}
 	rsp, err2 := client.CreateUser(context.Background(), req)
 	assert.Nil(t, err2)
