@@ -17,7 +17,8 @@ var genGormCmd = &cobra.Command{
 		// specify the output directory (default: "./query")
 		// ### if you want to query without context constrain, set mode gen.WithoutContext ###
 		g := gen.NewGenerator(gen.Config{
-			OutPath: pkg.Root + "/internal/query",
+			OutPath: pkg.Root + "/internal/gen_query",
+			ModelPkgPath:pkg.Root + "/internal/gen_model",
 			/* Mode: gen.WithoutContext|gen.WithDefaultQuery*/
 			//if you want the nullable field generation property to be pointer type, set FieldNullable true
 			/* FieldNullable: true,*/
@@ -41,36 +42,37 @@ var genGormCmd = &cobra.Command{
 		// apply diy interfaces on structs or table models
 		//g.ApplyInterface(func(method model.Method) {}, model.User{}, g.GenerateModel("company"))
 
-		device := g.GenerateModel("device")
+		typeOpt:=gen.FieldType("id","uint64")
+		device := g.GenerateModel("device",typeOpt)
 		deviceAck := g.GenerateModel("device_ack", gen.FieldRelate(field.BelongsTo, "Device", device, &field.RelateConfig{
 			// RelateSlice: true,
-			GORMTag: "foreignKey:device_id",
-		}))
-		message := g.GenerateModel("message")
-		groupUser := g.GenerateModel("group_user")
+			//GORMTag: "foreignKey:device_id",
+		}),typeOpt)
+		message := g.GenerateModel("message",typeOpt)
+		groupUser := g.GenerateModel("group_user",typeOpt)
 
 		user := g.GenerateModel("user",
 			gen.FieldRelate(field.HasMany, "Device", device, &field.RelateConfig{
 				// RelateSlice: true,
-				GORMTag: "foreignKey:device_id",
+				//GORMTag: "foreignKey:device_id",
 			}),
 			gen.FieldRelate(field.HasMany, "Message", device, &field.RelateConfig{
 				// RelateSlice: true,
-				GORMTag: "foreignKey:receiver_id",
+				//GORMTag: "foreignKey:receiver_id",
 			}),
 			gen.FieldRelate(field.Many2Many, "GroupUser", groupUser, &field.RelateConfig{
 				// RelateSlice: true,
-				GORMTag: "foreignKey:user_id",
+				//GORMTag: "foreignKey:user_id",
 			}),
-		)
+			typeOpt)
 		group := g.GenerateModel("group", gen.FieldRelate(field.Many2Many, "GroupUser", groupUser,
 			&field.RelateConfig{
 				// RelateSlice: true,
-				GORMTag: "foreignKey:group_id",
-			}))
+				//GORMTag: "foreignKey:group_id",
+			}),typeOpt)
 
 		g.ApplyBasic(device, deviceAck, group, groupUser, message, user)
-		g.ApplyBasic(g.GenerateAllTable()...)
+		g.ApplyBasic(g.GenerateAllTable(typeOpt)...)
 		// execute the action of code generation
 		g.Execute()
 

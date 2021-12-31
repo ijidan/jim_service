@@ -13,56 +13,56 @@ import (
 	"testing"
 )
 
-
 var basic *call.BasicCall
 var client proto_build.UserServiceClient
-var userId=flag.Int("user_id",0,"user id required")
+var userNum = flag.Int("user_num", 1, "user num")
+var userId = flag.Int("user_id", 0, "user id")
 
-
-func init()  {
-	basic=call.NewBasicCall(pkg.Conf.Rpc.Host,pkg.Conf.Rpc.Port)
-	client= proto_build.NewUserServiceClient(basic.Conn)
+func init() {
+	basic = call.NewBasicCall(pkg.Conf.Rpc.Host, pkg.Conf.Rpc.Port)
+	client = proto_build.NewUserServiceClient(basic.Conn)
 }
-
 
 func TestCreateUser(t *testing.T) {
 	defer basic.Close()
-	req := &proto_build.CreateUserRequest{
-		Nickname:    fmt.Sprintf("jidan%d",carbon.Now().Timestamp()),
-		Gender:      proto_build.Gender_Male,
-		AvatarUrl:   "https://cdn.libravatar.org/static/img/nobody/80.png",
-		Password:    "jidan123456",
-		PasswordRpt: "jidan123456",
-	}
-	rsp, err2 := client.CreateUser(context.Background(), req)
-	assert.Nil(t, err2)
-	if err2==nil{
-		t.Log(rsp.User)
+	for i := 0; i < *userNum; i++ {
+		req := &proto_build.CreateUserRequest{
+			Nickname:    fmt.Sprintf("jidan%d", carbon.Now().Timestamp()),
+			Gender:      proto_build.Gender_Male,
+			AvatarUrl:   "https://cdn.libravatar.org/static/img/nobody/80.png",
+			Password:    "jidan123456",
+			PasswordRpt: "jidan123456",
+		}
+		rsp, err2 := client.CreateUser(context.Background(), req)
+		assert.Nil(t, err2)
+		if err2 == nil {
+			t.Log(rsp.User)
+		}
 	}
 }
 
-func TestGetUser(t *testing.T)  {
+func TestGetUser(t *testing.T) {
 	defer basic.Close()
-	req:=&proto_build.GetUserRequest{
+	req := &proto_build.GetUserRequest{
 		Id: cast.ToUint64(userId),
 	}
-	rsp,err:=client.GetUser(context.Background(),req)
+	rsp, err := client.GetUser(context.Background(), req)
 	assert.Nil(t, err)
-	if err==nil{
+	if err == nil {
 		t.Log(rsp.User)
 	}
 }
 
 func TestQueryUser(t *testing.T) {
 	defer basic.Close()
-	req:=&proto_build.QueryUserRequest{
+	req := &proto_build.QueryUserRequest{
 		Keyword:  "jidan",
 		Page:     1,
 		PageSize: 10,
 	}
-	rsp,err:=client.QueryUser(context.Background(),req)
+	rsp, err := client.QueryUser(context.Background(), req)
 	assert.Nil(t, err)
-	if err==nil{
+	if err == nil {
 		t.Log(rsp.GetUser())
 		t.Log(rsp.GetPager())
 	}

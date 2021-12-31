@@ -2,7 +2,7 @@ APP = jim_service
 PACKAGE =
 OUTPUT_BUILD_DIR = /data
 
-.PHONY : proto tidy download build run compose clean gormt  test help
+.PHONY : proto tidy download build run compose clean gormt gen token test help
 help:
 	@echo "make proto -  grpc编译"
 	@echo "make tidy -  Go Mod tidy"
@@ -42,6 +42,10 @@ clean:
 	@rm -rf vendor
 gormt:
 	@gormt
+gen:
+	@go run cmd/main/main.go gen_gorm
+token:
+	@go run cmd/main/main.go gen_token
 test:
 	@go test -v  ./test
 grpcurl:

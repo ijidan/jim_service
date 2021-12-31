@@ -1,7 +1,7 @@
 #gormt 配置
 base:
   is_dev: false
-out_dir: ./internal/model_gormt  # 输出目录
+out_dir: ./internal/gormt  # 输出目录
 url_tag: json # web url tag(json,db(https://github.com/google/go-querystring))
 language: 中 文  # 语言(English,中 文)
 db_tag: gorm # 数据库标签(gorm,db)
@@ -17,7 +17,7 @@ is_web_tag_pk_hidden: false
 table_prefix: "" #表前缀
 table_names: "" #指定表生成，多个表用,隔开
 is_column_name: true # 是否生成列名
-is_out_file_by_table_name: false # 是否根据表名生成多个model
+is_out_file_by_table_name: true # 是否根据表名生成多个model
 db_info:
   host: 127.0.0.1
   port: 3306
