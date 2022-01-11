@@ -54,6 +54,14 @@ func (s *UserService) QueryUser(c context.Context, req *proto_build.QueryUserReq
 	}
 	return rsp, nil
 }
+func (s *UserService) 	UpdateAvatar(stream proto_build.UserService_UpdateAvatarServer)error{
+	_,err:=stream.Recv()
+	if err!=nil{
+		return status.Error(codes.Internal,err.Error())
+
+	}
+	return nil
+}
 
 func NewUserService(config *config.Config) *UserService {
 	instance := &UserService{BasicService: BasicService{

@@ -2,7 +2,8 @@ APP = jim_service
 PACKAGE =
 OUTPUT_BUILD_DIR = /data
 
-.PHONY : proto tidy download build run compose clean gormt gen token test help
+.PHONY :a help proto tidy download build run compose clean gormt gen token test
+
 help:
 	@echo "make proto -  grpc编译"
 	@echo "make tidy -  Go Mod tidy"
@@ -17,6 +18,7 @@ help:
 	@echo "make start - goreman start"
 	@echo "make status - goreman run status"
 	@echo "make stop - goreman run stop"
+
 proto: download
 	@protoc -I=internal/jim_proto/proto \
 		-I=$(GOPATH)/pkg/mod \
@@ -29,17 +31,17 @@ download:
 	@go mod download
 build:
 	@echo "Building  app..."
-	@rm -rf $(OUTPUT_BUILD_DIR)
-	@mkdir -p $(OUTPUT_BUILD_DIR)
-	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -o $(OUTPUT_BUILD_DIR)/$(APP) -ldflags '-w -s'
+	@rm -rf ${OUTPUT_BUILD_DIR}
+	@mkdir -p ${OUTPUT_BUILD_DIR}
+	@CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -o ${OUTPUT_BUILD_DIR}/${APP} -ldflags '-w -s'
 run: build
-	@$(OUTPUT_BUILD_DIR)/$(APP)
+	@${OUTPUT_BUILD_DIR}/${APP}
 compose:
-	@echo "Building $(app) app in docker..."
+	@echo "Building ${APP} app in docker..."
 	@docker-compose up -d
 clean:
-	@echo "Cleaning..."
-	@rm -rf vendor
+	-echo "Cleaning..."
+	-rm -rf vendor
 gormt:
 	@gormt
 gen:

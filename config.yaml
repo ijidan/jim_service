@@ -38,3 +38,7 @@ etcd:
   host:
     - 127.0.0.1:2379
   timeout: 6831
+
+smms:
+  user: jidan
+  password: zhuan1234
