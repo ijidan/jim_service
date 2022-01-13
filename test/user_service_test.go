@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/golang-module/carbon/v2"
+	"github.com/spf13/afero"
 	"github.com/spf13/cast"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"io"
 	"jim_service/internal/call"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/pkg"
@@ -17,6 +19,7 @@ var basic *call.BasicCall
 var client proto_build.UserServiceClient
 var userNum = flag.Int("user_num", 1, "user num")
 var userId = flag.Int("user_id", 0, "user id")
+var userImg = flag.String("user_img", "", "img path required")
 
 func init() {
 	basic = call.NewBasicCall(pkg.Conf.Rpc.Host, pkg.Conf.Rpc.Port)
@@ -25,6 +28,7 @@ func init() {
 
 func TestCreateUser(t *testing.T) {
 	defer basic.Close()
+	flag.Parse()
 	for i := 0; i < *userNum; i++ {
 		req := &proto_build.CreateUserRequest{
 			Nickname:    fmt.Sprintf("jidan%d", carbon.Now().Timestamp()),
@@ -34,23 +38,20 @@ func TestCreateUser(t *testing.T) {
 			PasswordRpt: "jidan123456",
 		}
 		rsp, err2 := client.CreateUser(context.Background(), req)
-		assert.Nil(t, err2)
-		if err2 == nil {
-			t.Log(rsp.User)
-		}
+		require.Nil(t, err2, err2)
+		t.Log(rsp.User)
 	}
 }
 
 func TestGetUser(t *testing.T) {
 	defer basic.Close()
+	flag.Parse()
 	req := &proto_build.GetUserRequest{
 		Id: cast.ToUint64(userId),
 	}
 	rsp, err := client.GetUser(context.Background(), req)
-	assert.Nil(t, err)
-	if err == nil {
-		t.Log(rsp.User)
-	}
+	require.Nil(t, err, err)
+	t.Log(rsp.User)
 }
 
 func TestQueryUser(t *testing.T) {
@@ -61,9 +62,35 @@ func TestQueryUser(t *testing.T) {
 		PageSize: 10,
 	}
 	rsp, err := client.QueryUser(context.Background(), req)
-	assert.Nil(t, err)
-	if err == nil {
-		t.Log(rsp.GetUser())
-		t.Log(rsp.GetPager())
+	require.Nil(t, err, err)
+	t.Log(rsp.GetUser())
+	t.Logf("-------------------")
+	t.Log(rsp.GetPager())
+}
+
+func TestUploadAvatar(t *testing.T) {
+	defer basic.Close()
+	flag.Parse()
+	osFs := afero.NewOsFs()
+	content, err := afero.ReadFile(osFs, *userImg)
+	require.Nil(t, err, err)
+
+	uploadAvatarContent := &proto_build.UploadAvatarRequest_Content{Content: content}
+	req := &proto_build.UploadAvatarRequest{Data: uploadAvatarContent}
+	uploadAvatarClient, err1 := client.UpdateAvatar(context.Background())
+	require.Nil(t, err1, err1)
+
+	err2 := uploadAvatarClient.Send(req)
+	if err2 != nil {
+		if err2 == io.EOF {
+			err3 := uploadAvatarClient.CloseSend()
+			require.Nil(t, err3, err3)
+		} else {
+			require.Nil(t, err2, err2)
+		}
 	}
+
+	rsp, err4 := uploadAvatarClient.CloseAndRecv()
+	require.Nil(t, err4, err4)
+	t.Log(rsp)
 }

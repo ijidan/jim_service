@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/opentracing/opentracing-go"
+	"jim_service/internal/jim_proto/proto_build"
 )
 
 
@@ -44,4 +45,22 @@ func (s *BasicService)AddSpan(c context.Context,funcName string,req interface{},
 		span.SetTag("reply", rsp)
 		span.Finish()
 	}()
+}
+
+func (s *BasicService) SuccessCommon() *proto_build.CommonResponse  {
+	rsp:=&proto_build.CommonResponse{
+		ErrorCode:    0,
+		BusinessCode: 0,
+		Message:      "success",
+	}
+	return rsp
+}
+
+func (s *BasicService) FailCommon(errorCode uint64,businessCode uint64,message string) *proto_build.CommonResponse {
+	rsp:=&proto_build.CommonResponse{
+		ErrorCode:   errorCode ,
+		BusinessCode: businessCode,
+		Message:      message,
+	}
+	return rsp
 }

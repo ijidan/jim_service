@@ -16,7 +16,7 @@ type JResolver struct {
 	target           resolver.Target
 	cc               resolver.ClientConn
 	addressStore     map[string][]string
-	serviceDiscovery *ServiceDiscovery
+	serviceDiscovery *Discovery
 }
 
 func (r *JResolver) ResolveNow(o resolver.ResolveNowOptions) {
@@ -55,7 +55,7 @@ func (r *JResolver) Watch() {
 }
 
 type JResolverBuilder struct {
-	serviceDiscovery *ServiceDiscovery
+	serviceDiscovery *Discovery
 }
 
 func (b *JResolverBuilder) Build(target resolver.Target, cc resolver.ClientConn, opts resolver.BuildOptions) (resolver.Resolver, error) {

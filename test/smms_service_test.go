@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-var img = flag.String("img", "", "img path required")
+var SmMsImg = flag.String("ss_img", "", "img path required")
 
 func TestSmMsGetToken(t *testing.T) {
 	defer basic.Close()
@@ -41,7 +41,7 @@ func TestSmMsUploadImage(t *testing.T) {
 	if err!=nil{
 		t.Fatal(err)
 	}
-	img, err1 := smMs.UploadImage(token, *img)
+	img, err1 := smMs.UploadImage(token, *SmMsImg)
 	if err1!=nil{
 		t.Fatal(err1)
 	}

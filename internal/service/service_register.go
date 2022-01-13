@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type ServiceRegister struct {
+type Register struct {
 	Client              *clientv3.Client
 	AppName             string
 	Service             BasicService
@@ -15,7 +15,7 @@ type ServiceRegister struct {
 	ServiceCloseMap     map[BasicService]chan bool
 }
 
-func (r *ServiceRegister) RegisterService(srvList ...BasicService) {
+func (r *Register) RegisterService(srvList ...BasicService) {
 	for _, srv := range srvList {
 		LeaseRsp, err1 := r.Client.Grant(context.Background(), srv.GetTTL())
 		if err1 != nil {
@@ -39,7 +39,7 @@ func (r *ServiceRegister) RegisterService(srvList ...BasicService) {
 	go r.KeepAlive()
 }
 
-func (r *ServiceRegister) UnRegisterService(srv BasicService) {
+func (r *Register) UnRegisterService(srv BasicService) {
 	leaseId := r.ServiceLeaseIdMap[srv]
 	var err error
 	_, err = r.Client.Revoke(context.Background(), leaseId)
@@ -52,12 +52,12 @@ func (r *ServiceRegister) UnRegisterService(srv BasicService) {
 	}
 }
 
-func (r *ServiceRegister) Stop(srv BasicService) {
+func (r *Register) Stop(srv BasicService) {
 	closeCh := r.ServiceCloseMap[srv]
 	closeCh <- true
 }
 
-func (r *ServiceRegister) CloseSrv(srv BasicService) {
+func (r *Register) CloseSrv(srv BasicService) {
 	closeCh := r.ServiceCloseMap[srv]
 	for {
 		select {
@@ -69,7 +69,7 @@ func (r *ServiceRegister) CloseSrv(srv BasicService) {
 	}
 }
 
-func (r *ServiceRegister) KeepAlive() {
+func (r *Register) KeepAlive() {
 	ticker := time.NewTicker(time.Second)
 	for {
 		select {
@@ -81,8 +81,8 @@ func (r *ServiceRegister) KeepAlive() {
 	}
 }
 
-func NewServiceRegister(client *clientv3.Client, appName string) *ServiceRegister {
-	serviceRegister := &ServiceRegister{
+func NewServiceRegister(client *clientv3.Client, appName string) *Register {
+	serviceRegister := &Register{
 		Client:              client,
 		AppName:             appName,
 		ServiceLeaseIdMap:   make(map[BasicService]clientv3.LeaseID),

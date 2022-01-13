@@ -12,10 +12,10 @@ type Token struct {
 	Token string `json:"token"`
 }
 type TokenRsp struct {
-	Success bool   `json:"success"`
-	Code    string `json:"code"`
-	Message string `json:"message"`
-	Data   Token `json:"data"`
+	Success   bool   `json:"success"`
+	Code      string `json:"code"`
+	Message   string `json:"message"`
+	Data      Token  `json:"data"`
 	RequestId string `json:"RequestId"`
 }
 type UserProfile struct {
@@ -75,8 +75,8 @@ func (s *SmMs) GetToken(userName string, password string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if tokenRsp.Success ==false{
-		return "",errors.New(tokenRsp.Message)
+	if tokenRsp.Success == false {
+		return "", errors.New(tokenRsp.Message)
 	}
 	return tokenRsp.Data.Token, nil
 }
@@ -94,8 +94,8 @@ func (s *SmMs) GetUserProfile(token string) (UserProfile, error) {
 	if err != nil {
 		return UserProfile{}, err
 	}
-	if userProfileRsp.Success ==false{
-		return UserProfile{},errors.New(userProfileRsp.Message)
+	if userProfileRsp.Success == false {
+		return UserProfile{}, errors.New(userProfileRsp.Message)
 	}
 	return userProfileRsp.Data, nil
 }
@@ -109,20 +109,36 @@ func (s *SmMs) UploadImage(token string, filePath string) (Image, error) {
 		ForceContentType("application/json").
 		SetAuthScheme("Basic").
 		SetAuthToken(token).
-		SetFile("smfile",filePath).
+		SetFile("smfile", filePath).
 		SetResult(uploadImageRsp).
 		Post(url)
 	if err != nil {
 		return Image{}, err
 	}
-	if uploadImageRsp.Success==false{
-		return Image{},errors.New(uploadImageRsp.Message)
+	if uploadImageRsp.Success == false {
+		return Image{}, errors.New(uploadImageRsp.Message)
 	}
 	return uploadImageRsp.Data, nil
 }
 
-func NewSmMs() *SmMs  {
-	smMs:=&SmMs{}
-	return smMs
+func SmMsUploadImage(userName string, password string, filePath string) (Image, error) {
+	smMs := NewSmMs()
+	token, err := smMs.GetToken(userName, password)
+	if err != nil {
+		return Image{}, err
+	}
+	img, err1 := smMs.UploadImage(token, filePath)
+	if err1 != nil {
+		//if strings.Contains(err1.Error(),"exists") && strings.Contains(err1.Error(),"https"){
+		//	url:="https://"+strings.Split(err1.Error(),"//")[1]
+		//	return Image{Url:       url,},nil
+		//}
+		return Image{}, err1
+	}
+	return img, nil
 }
 
+func NewSmMs() *SmMs {
+	smMs := &SmMs{}
+	return smMs
+}

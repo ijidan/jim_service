@@ -7,13 +7,13 @@ import (
 	"sync"
 )
 
-type ServiceDiscovery struct {
+type Discovery struct {
 	Client               *clientv3.Client
 	ServiceServerListMap map[string][]string
 	lock                 sync.Mutex
 }
 
-func (d *ServiceDiscovery) InitServerList() []string {
+func (d *Discovery) InitServerList() []string {
 	key:=ComputePrefixKey()
 	rsp, err := d.Client.Get(context.Background(), key,clientv3.WithPrefix())
 	if err != nil {
@@ -30,15 +30,15 @@ func (d *ServiceDiscovery) InitServerList() []string {
 	}
 	return serverList
 }
-func (d *ServiceDiscovery) GetServiceServerList()map[string][]string  {
+func (d *Discovery) GetServiceServerList()map[string][]string  {
 	return d.ServiceServerListMap
 }
 
-func (d *ServiceDiscovery) GetServerList(serviceName string) []string {
+func (d *Discovery) GetServerList(serviceName string) []string {
 	return d.ServiceServerListMap[serviceName]
 }
 
-func (d *ServiceDiscovery) PutServer(serviceName string,server string) {
+func (d *Discovery) PutServer(serviceName string,server string) {
 	d.lock.Lock()
 	serverList:=d.ServiceServerListMap[serviceName]
 	newServerList:=append(serverList,server)
@@ -47,7 +47,7 @@ func (d *ServiceDiscovery) PutServer(serviceName string,server string) {
 
 }
 
-func (d *ServiceDiscovery) DeleteServer(serviceName string,server string)  {
+func (d *Discovery) DeleteServer(serviceName string,server string)  {
 	d.lock.Lock()
 	serverList:=d.ServiceServerListMap[serviceName]
 	var newServerList []string
@@ -60,7 +60,7 @@ func (d *ServiceDiscovery) DeleteServer(serviceName string,server string)  {
 	d.lock.Unlock()
 }
 
-func (d *ServiceDiscovery) Watch() {
+func (d *Discovery) Watch() {
 	key:=ComputePrefixKey()
 	watchCh := d.Client.Watch(context.Background(), key, clientv3.WithPrefix())
 	for {
@@ -82,8 +82,8 @@ func (d *ServiceDiscovery) Watch() {
 	}
 }
 
-func NewServiceDiscovery(client *clientv3.Client) *ServiceDiscovery {
-	serviceDiscovery := &ServiceDiscovery{
+func NewServiceDiscovery(client *clientv3.Client) *Discovery {
+	serviceDiscovery := &Discovery{
 		Client:  client,
 		ServiceServerListMap: map[string][]string{},
 		lock: sync.Mutex{},
