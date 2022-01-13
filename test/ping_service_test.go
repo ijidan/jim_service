@@ -2,7 +2,7 @@ package test
 
 import (
 	"context"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"jim_service/internal/call"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/internal/service"
@@ -16,9 +16,8 @@ func TestPing(t *testing.T) {
 
 	pingService := service.NewPingService(pkg.Conf)
 	rsp, err := pingService.Ping(context.Background(), &proto_build.PingRequest{})
-	assert.Nil(t, err)
+	require.Nil(t, err,err)
 	t.Log(rsp.GetMessage())
-	t.Log(rsp,err)
 }
 
 func TestClientPing(t *testing.T) {
@@ -26,7 +25,7 @@ func TestClientPing(t *testing.T) {
 	defer basic.Close()
 	client := proto_build.NewPingServiceClient(basic.Conn)
 	rsp, err := client.Ping(basic.DialCtx, &proto_build.PingRequest{})
-	assert.Nil(t, err)
+	require.Nil(t, err,err)
 	t.Log(rsp.GetMessage())
 }
 

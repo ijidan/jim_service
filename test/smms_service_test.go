@@ -2,6 +2,7 @@ package test
 
 import (
 	"flag"
+	"github.com/stretchr/testify/require"
 	"jim_service/pkg"
 	"testing"
 )
@@ -12,9 +13,7 @@ func TestSmMsGetToken(t *testing.T) {
 	defer basic.Close()
 	smMs := pkg.NewSmMs()
 	token, err := smMs.GetToken(pkg.Conf.Smms.User, pkg.Conf.Smms.Password)
-	if err!=nil{
-		t.Fatal(err)
-	}
+	require.Nil(t, err,err)
 	t.Log(token)
 }
 
@@ -22,14 +21,11 @@ func TestSmMsGetUserProfile(t *testing.T) {
 	defer basic.Close()
 	smMs := pkg.NewSmMs()
 	token, err := smMs.GetToken(pkg.Conf.Smms.User, pkg.Conf.Smms.Password)
-	if err!=nil{
-		t.Fatal(err)
-	}
+	require.Nil(t, err,err)
 	t.Log(token)
+
 	userProfile, err1 := smMs.GetUserProfile(token)
-	if err1 != nil {
-		t.Fatal(err1)
-	}
+	require.Nil(t, err1,err1)
 	t.Log(userProfile)
 }
 
@@ -38,12 +34,9 @@ func TestSmMsUploadImage(t *testing.T) {
 	flag.Parse()
 	smMs := pkg.NewSmMs()
 	token, err := smMs.GetToken(pkg.Conf.Smms.User, pkg.Conf.Smms.Password)
-	if err!=nil{
-		t.Fatal(err)
-	}
+	require.Nil(t, err,err)
+
 	img, err1 := smMs.UploadImage(token, *SmMsImg)
-	if err1!=nil{
-		t.Fatal(err1)
-	}
+	require.Nil(t, err1,err1)
 	t.Log(img)
 }

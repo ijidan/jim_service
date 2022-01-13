@@ -3,7 +3,7 @@ package test
 import (
 	"context"
 	"flag"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc/resolver"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/internal/service"
@@ -30,9 +30,9 @@ func TestPingService(t *testing.T)  {
 	builder:=service.NewJResolverBuilder(clientV3)
 	resolver.Register(builder)
 	conn, err := service.GetRpcConn("service_ping")
-	assert.Nil(t, err)
+	require.Nil(t, err,err)
 	client := proto_build.NewPingServiceClient(conn)
 	rsp, err1 := client.Ping(context.Background(), &proto_build.PingRequest{})
-	assert.Nil(t, err1)
+	require.Nil(t, err1,err1)
 	t.Log(rsp.GetMessage())
 }
