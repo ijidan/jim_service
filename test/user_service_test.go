@@ -5,10 +5,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/golang-module/carbon/v2"
-	"github.com/spf13/afero"
 	"github.com/spf13/cast"
 	"github.com/stretchr/testify/require"
-	"io"
 	"jim_service/internal/call"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/pkg"
@@ -19,7 +17,7 @@ var basic *call.BasicCall
 var client proto_build.UserServiceClient
 var userNum = flag.Int("user_num", 1, "user num")
 var userId = flag.Int("user_id", 0, "user id")
-var userImg = flag.String("user_img", "", "img path required")
+var userImg = flag.String("user_img", "", "img url required")
 
 func init() {
 	basic = call.NewBasicCall(pkg.Conf.Rpc.Host, pkg.Conf.Rpc.Port)
@@ -68,29 +66,13 @@ func TestQueryUser(t *testing.T) {
 	t.Log(rsp.GetPager())
 }
 
-func TestUploadAvatar(t *testing.T) {
+func TestUpdateAvatar(t *testing.T) {
 	defer basic.Close()
 	flag.Parse()
-	osFs := afero.NewOsFs()
-	content, err := afero.ReadFile(osFs, *userImg)
-	require.Nil(t, err, err)
 
-	uploadAvatarContent := &proto_build.UploadAvatarRequest_Content{Content: content}
-	req := &proto_build.UploadAvatarRequest{Data: uploadAvatarContent}
-	uploadAvatarClient, err1 := client.UpdateAvatar(context.Background())
-	require.Nil(t, err1, err1)
+	req:=&proto_build.UpdateAvatarRequest{Url: *userImg}
+	rsp,err:=client.UpdateAvatar(context.Background(),req)
+	require.Nil(t, err,err)
 
-	err2 := uploadAvatarClient.Send(req)
-	if err2 != nil {
-		if err2 == io.EOF {
-			err3 := uploadAvatarClient.CloseSend()
-			require.Nil(t, err3, err3)
-		} else {
-			require.Nil(t, err2, err2)
-		}
-	}
-
-	rsp, err4 := uploadAvatarClient.CloseAndRecv()
-	require.Nil(t, err4, err4)
 	t.Log(rsp)
 }

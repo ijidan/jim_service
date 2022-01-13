@@ -4,7 +4,6 @@ import (
 	"context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"io"
 	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/internal/repository"
@@ -27,7 +26,7 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserR
 	}
 	protoUser, err1 := repository.GetProtoUserByUserId(pkg.Db, user.ID)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err1.Error())
+		return nil, err1
 	}
 	rsp := proto_build.CreateUserResponse{User: protoUser}
 	defer s.AddSpan(c, pkg.GetFuncName(), req, rsp.String())
@@ -38,7 +37,7 @@ func (s *UserService) GetUser(c context.Context, req *proto_build.GetUserRequest
 	id := req.GetId()
 	protoUser, err := repository.GetProtoUserByUserId(pkg.Db, id)
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, err
 	}
 	rsp := &proto_build.GetUserResponse{
 		User: protoUser,
@@ -50,7 +49,7 @@ func (s *UserService) GetUser(c context.Context, req *proto_build.GetUserRequest
 func (s *UserService) QueryUser(c context.Context, req *proto_build.QueryUserRequest) (*proto_build.QueryUserResponse, error) {
 	protoUserList, pager, err := repository.QueryProtoUser(pkg.Db, req.GetKeyword(), req.GetPage(), req.GetPageSize())
 	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
+		return nil, err
 	}
 	rsp := &proto_build.QueryUserResponse{
 		Pager: pager,
@@ -59,36 +58,41 @@ func (s *UserService) QueryUser(c context.Context, req *proto_build.QueryUserReq
 	return rsp, nil
 }
 
-func (s *UserService) UpdateAvatar(stream proto_build.UserService_UpdateAvatarServer) error {
-	fileUpload:=pkg.NewFileUpload()
-	defer fileUpload.Close()
 
-	for {
-		req, err := stream.Recv()
-		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			return status.Error(codes.Internal, err.Error())
-		}
-		content := req.GetContent()
-		_,err1:=fileUpload.WriteContent(content)
-		if err1 != nil {
-			return status.Error(codes.Internal, "write file failed")
-		}
+func (s *UserService) UserLogin(c context.Context, req *proto_build.UserLoginRequest) (*proto_build.UserLoginResponse, error) {
+	protoUser,err:=repository.GetProtoUser(pkg.Db,req.GetNickname(),req.GetPassword())
+	if err!=nil{
+		return nil,err
 	}
+	userId:=protoUser.Id
+	token:=pkg.GenJwtToken(userId,pkg.Conf.Jwt.Secret)
+	rsp:=&proto_build.UserLoginResponse{Token: token}
+	return rsp,nil
+}
 
-	fileName:=fileUpload.GetFileName()
-	img,err2:=pkg.SmMsUploadImage(pkg.Conf.Smms.User,pkg.Conf.Smms.Password,fileName)
-	if err2!=nil{
-		return status.Error(codes.Internal,err2.Error())
+
+func (s *UserService) UpdatePassword(c context.Context,req *proto_build.UpdatePasswordRequest)(*proto_build.UpdatePasswordResponse,error)  {
+	if req.Password != req.PasswordRpt {
+		return nil, status.Error(codes.Internal, "password ,password_rpt not the same")
 	}
-	rsp := &proto_build.UploadAvatarResponse{Url: img.Url}
-	err3 := stream.SendAndClose(rsp)
-	if err3 != nil {
-		return status.Error(codes.Internal, err3.Error())
+	userId:=s.GetLoginUserId()
+	err:=repository.UpdateUserPassword(pkg.Db,userId,req.Password)
+	if err!=nil{
+		return nil,status.Error(codes.Internal,err.Error())
 	}
-	return nil
+	rsp:=&proto_build.UpdatePasswordResponse{}
+	return rsp,nil
+}
+
+func (s *UserService) UpdateAvatar(c context.Context,req *proto_build.UpdateAvatarRequest) (*proto_build.UpdateAvatarResponse, error)  {
+	url:=req.GetUrl()
+	userId:=s.GetLoginUserId()
+	err:=repository.UpdateUserAvatar(pkg.Db,userId,url)
+	if err!=nil{
+		return nil,status.Error(codes.Internal,err.Error())
+	}
+	rsp:=&proto_build.UpdateAvatarResponse{}
+	return rsp,nil
 }
 
 func NewUserService(config *config.Config) *UserService {
