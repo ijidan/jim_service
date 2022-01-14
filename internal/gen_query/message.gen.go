@@ -25,12 +25,13 @@ func newMessage(db *gorm.DB) message {
 	tableName := _message.messageDo.TableName()
 	_message.ALL = field.NewField(tableName, "*")
 	_message.ID = field.NewUint64(tableName, "id")
-	_message.SenderID = field.NewInt32(tableName, "sender_id")
+	_message.SenderID = field.NewUint64(tableName, "sender_id")
 	_message.SenderType = field.NewInt32(tableName, "sender_type")
-	_message.ReceiverID = field.NewInt32(tableName, "receiver_id")
+	_message.ReceiverID = field.NewUint64(tableName, "receiver_id")
 	_message.ReceiverType = field.NewInt32(tableName, "receiver_type")
-	_message.ToUserIds = field.NewString(tableName, "to_user_ids")
+	_message.AtUserID = field.NewString(tableName, "at_user_id")
 	_message.MessageType = field.NewInt32(tableName, "message_type")
+	_message.Data = field.NewString(tableName, "data")
 	_message.Status = field.NewInt32(tableName, "status")
 	_message.CreatedAt = field.NewTime(tableName, "created_at")
 	_message.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -46,12 +47,13 @@ type message struct {
 
 	ALL          field.Field
 	ID           field.Uint64
-	SenderID     field.Int32
+	SenderID     field.Uint64
 	SenderType   field.Int32
-	ReceiverID   field.Int32
+	ReceiverID   field.Uint64
 	ReceiverType field.Int32
-	ToUserIds    field.String
+	AtUserID     field.String
 	MessageType  field.Int32
+	Data         field.String
 	Status       field.Int32
 	CreatedAt    field.Time
 	UpdatedAt    field.Time
@@ -65,12 +67,13 @@ func (m message) As(alias string) *message {
 
 	m.ALL = field.NewField(alias, "*")
 	m.ID = field.NewUint64(alias, "id")
-	m.SenderID = field.NewInt32(alias, "sender_id")
+	m.SenderID = field.NewUint64(alias, "sender_id")
 	m.SenderType = field.NewInt32(alias, "sender_type")
-	m.ReceiverID = field.NewInt32(alias, "receiver_id")
+	m.ReceiverID = field.NewUint64(alias, "receiver_id")
 	m.ReceiverType = field.NewInt32(alias, "receiver_type")
-	m.ToUserIds = field.NewString(alias, "to_user_ids")
+	m.AtUserID = field.NewString(alias, "at_user_id")
 	m.MessageType = field.NewInt32(alias, "message_type")
+	m.Data = field.NewString(alias, "data")
 	m.Status = field.NewInt32(alias, "status")
 	m.CreatedAt = field.NewTime(alias, "created_at")
 	m.UpdatedAt = field.NewTime(alias, "updated_at")
@@ -91,14 +94,15 @@ func (m *message) GetFieldByName(fieldName string) (field.Expr, bool) {
 }
 
 func (m *message) fillFieldMap() {
-	m.fieldMap = make(map[string]field.Expr, 11)
+	m.fieldMap = make(map[string]field.Expr, 12)
 	m.fieldMap["id"] = m.ID
 	m.fieldMap["sender_id"] = m.SenderID
 	m.fieldMap["sender_type"] = m.SenderType
 	m.fieldMap["receiver_id"] = m.ReceiverID
 	m.fieldMap["receiver_type"] = m.ReceiverType
-	m.fieldMap["to_user_ids"] = m.ToUserIds
+	m.fieldMap["at_user_id"] = m.AtUserID
 	m.fieldMap["message_type"] = m.MessageType
+	m.fieldMap["data"] = m.Data
 	m.fieldMap["status"] = m.Status
 	m.fieldMap["created_at"] = m.CreatedAt
 	m.fieldMap["updated_at"] = m.UpdatedAt

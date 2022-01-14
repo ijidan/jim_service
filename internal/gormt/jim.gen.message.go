@@ -60,7 +60,7 @@ func (obj *_MessageMgr) WithID(id uint64) Option {
 }
 
 // WithSenderID sender_id获取 发送人ID
-func (obj *_MessageMgr) WithSenderID(senderID int) Option {
+func (obj *_MessageMgr) WithSenderID(senderID uint64) Option {
 	return optionFunc(func(o *options) { o.query["sender_id"] = senderID })
 }
 
@@ -70,7 +70,7 @@ func (obj *_MessageMgr) WithSenderType(senderType int8) Option {
 }
 
 // WithReceiverID receiver_id获取 接收人ID，单聊则为user_id,群聊则为group_id
-func (obj *_MessageMgr) WithReceiverID(receiverID int) Option {
+func (obj *_MessageMgr) WithReceiverID(receiverID uint64) Option {
 	return optionFunc(func(o *options) { o.query["receiver_id"] = receiverID })
 }
 
@@ -79,9 +79,9 @@ func (obj *_MessageMgr) WithReceiverType(receiverType int8) Option {
 	return optionFunc(func(o *options) { o.query["receiver_type"] = receiverType })
 }
 
-// WithToUserIDs to_user_ids获取 需要@的用户，多个用,分割
-func (obj *_MessageMgr) WithToUserIDs(toUserIDs string) Option {
-	return optionFunc(func(o *options) { o.query["to_user_ids"] = toUserIDs })
+// WithAtUserID at_user_id获取 需要@的用户，多个用,分割
+func (obj *_MessageMgr) WithAtUserID(atUserID string) Option {
+	return optionFunc(func(o *options) { o.query["at_user_id"] = atUserID })
 }
 
 // WithMessageType message_type获取 消息类型
@@ -154,14 +154,14 @@ func (obj *_MessageMgr) GetBatchFromID(ids []uint64) (results []*Message, err er
 }
 
 // GetFromSenderID 通过sender_id获取内容 发送人ID
-func (obj *_MessageMgr) GetFromSenderID(senderID int) (results []*Message, err error) {
+func (obj *_MessageMgr) GetFromSenderID(senderID uint64) (results []*Message, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`sender_id` = ?", senderID).Find(&results).Error
 
 	return
 }
 
 // GetBatchFromSenderID 批量查找 发送人ID
-func (obj *_MessageMgr) GetBatchFromSenderID(senderIDs []int) (results []*Message, err error) {
+func (obj *_MessageMgr) GetBatchFromSenderID(senderIDs []uint64) (results []*Message, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`sender_id` IN (?)", senderIDs).Find(&results).Error
 
 	return
@@ -182,14 +182,14 @@ func (obj *_MessageMgr) GetBatchFromSenderType(senderTypes []int8) (results []*M
 }
 
 // GetFromReceiverID 通过receiver_id获取内容 接收人ID，单聊则为user_id,群聊则为group_id
-func (obj *_MessageMgr) GetFromReceiverID(receiverID int) (results []*Message, err error) {
+func (obj *_MessageMgr) GetFromReceiverID(receiverID uint64) (results []*Message, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`receiver_id` = ?", receiverID).Find(&results).Error
 
 	return
 }
 
 // GetBatchFromReceiverID 批量查找 接收人ID，单聊则为user_id,群聊则为group_id
-func (obj *_MessageMgr) GetBatchFromReceiverID(receiverIDs []int) (results []*Message, err error) {
+func (obj *_MessageMgr) GetBatchFromReceiverID(receiverIDs []uint64) (results []*Message, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`receiver_id` IN (?)", receiverIDs).Find(&results).Error
 
 	return
@@ -209,16 +209,16 @@ func (obj *_MessageMgr) GetBatchFromReceiverType(receiverTypes []int8) (results 
 	return
 }
 
-// GetFromToUserIDs 通过to_user_ids获取内容 需要@的用户，多个用,分割
-func (obj *_MessageMgr) GetFromToUserIDs(toUserIDs string) (results []*Message, err error) {
-	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`to_user_ids` = ?", toUserIDs).Find(&results).Error
+// GetFromAtUserID 通过at_user_id获取内容 需要@的用户，多个用,分割
+func (obj *_MessageMgr) GetFromAtUserID(atUserID string) (results []*Message, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`at_user_id` = ?", atUserID).Find(&results).Error
 
 	return
 }
 
-// GetBatchFromToUserIDs 批量查找 需要@的用户，多个用,分割
-func (obj *_MessageMgr) GetBatchFromToUserIDs(toUserIDss []string) (results []*Message, err error) {
-	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`to_user_ids` IN (?)", toUserIDss).Find(&results).Error
+// GetBatchFromAtUserID 批量查找 需要@的用户，多个用,分割
+func (obj *_MessageMgr) GetBatchFromAtUserID(atUserIDs []string) (results []*Message, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Message{}).Where("`at_user_id` IN (?)", atUserIDs).Find(&results).Error
 
 	return
 }

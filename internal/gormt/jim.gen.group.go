@@ -74,6 +74,11 @@ func (obj *_GroupMgr) WithExtra(extra string) Option {
 	return optionFunc(func(o *options) { o.query["extra"] = extra })
 }
 
+// WithUserID user_id获取 群主ID
+func (obj *_GroupMgr) WithUserID(userID int64) Option {
+	return optionFunc(func(o *options) { o.query["user_id"] = userID })
+}
+
 // WithCreatedAt created_at获取 创建时间
 func (obj *_GroupMgr) WithCreatedAt(createdAt time.Time) Option {
 	return optionFunc(func(o *options) { o.query["created_at"] = createdAt })
@@ -171,6 +176,20 @@ func (obj *_GroupMgr) GetFromExtra(extra string) (results []*Group, err error) {
 // GetBatchFromExtra 批量查找 附加属性
 func (obj *_GroupMgr) GetBatchFromExtra(extras []string) (results []*Group, err error) {
 	err = obj.DB.WithContext(obj.ctx).Model(Group{}).Where("`extra` IN (?)", extras).Find(&results).Error
+
+	return
+}
+
+// GetFromUserID 通过user_id获取内容 群主ID
+func (obj *_GroupMgr) GetFromUserID(userID int64) (results []*Group, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Group{}).Where("`user_id` = ?", userID).Find(&results).Error
+
+	return
+}
+
+// GetBatchFromUserID 批量查找 群主ID
+func (obj *_GroupMgr) GetBatchFromUserID(userIDs []int64) (results []*Group, err error) {
+	err = obj.DB.WithContext(obj.ctx).Model(Group{}).Where("`user_id` IN (?)", userIDs).Find(&results).Error
 
 	return
 }

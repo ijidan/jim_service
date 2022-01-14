@@ -11,8 +11,11 @@ import (
 	"jim_service/pkg"
 )
 
-const GenderMale = "1"
-const GenderFemale = "2"
+
+const (
+	GenderMale = "1"
+	GenderFemale = "2"
+)
 
 var GenderDbToProto = map[string]proto_build.Gender{
 	GenderMale:   proto_build.Gender_Male,

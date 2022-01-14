@@ -42,14 +42,16 @@ var genGormCmd = &cobra.Command{
 		// apply diy interfaces on structs or table models
 		//g.ApplyInterface(func(method model.Method) {}, model.User{}, g.GenerateModel("company"))
 
-		typeOpt:=gen.FieldType("id","uint64")
-		device := g.GenerateModel("device",typeOpt)
+		typeOptId:=gen.FieldType("id","uint64")
+		typeOptSenderId:=gen.FieldType("sender_id","uint64")
+		typeOptReceiverId:=gen.FieldType("receiver_id","uint64")
+		device := g.GenerateModel("device",typeOptId)
 		deviceAck := g.GenerateModel("device_ack", gen.FieldRelate(field.BelongsTo, "Device", device, &field.RelateConfig{
 			// RelateSlice: true,
 			//GORMTag: "foreignKey:device_id",
-		}),typeOpt)
-		message := g.GenerateModel("message",typeOpt)
-		groupUser := g.GenerateModel("group_user",typeOpt)
+		}),typeOptId)
+		message := g.GenerateModel("message",typeOptId,typeOptSenderId,typeOptReceiverId)
+		groupUser := g.GenerateModel("group_user",typeOptId)
 
 		user := g.GenerateModel("user",
 			gen.FieldRelate(field.HasMany, "Device", device, &field.RelateConfig{
@@ -64,15 +66,15 @@ var genGormCmd = &cobra.Command{
 				// RelateSlice: true,
 				//GORMTag: "foreignKey:user_id",
 			}),
-			typeOpt)
+			typeOptId)
 		group := g.GenerateModel("group", gen.FieldRelate(field.Many2Many, "GroupUser", groupUser,
 			&field.RelateConfig{
 				// RelateSlice: true,
 				//GORMTag: "foreignKey:group_id",
-			}),typeOpt)
+			}),typeOptId)
 
 		g.ApplyBasic(device, deviceAck, group, groupUser, message, user)
-		g.ApplyBasic(g.GenerateAllTable(typeOpt)...)
+		g.ApplyBasic(g.GenerateAllTable(typeOptId)...)
 		// execute the action of code generation
 		g.Execute()
 

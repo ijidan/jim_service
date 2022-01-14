@@ -10,6 +10,7 @@ type Group struct {
 	Name         string    `gorm:"column:name;type:varchar(50);not null;default:''" json:"name"`                  // 群组名称
 	Introduction string    `gorm:"column:introduction;type:varchar(255);not null;default:''" json:"introduction"` // 群组简介
 	Extra        string    `gorm:"column:extra;type:varchar(1024);not null;default:''" json:"extra"`              // 附加属性
+	UserID       int64     `gorm:"column:user_id;type:bigint;not null;default:0" json:"userId"`                   // 群主ID
 	CreatedAt    time.Time `gorm:"column:created_at;type:datetime" json:"createdAt"`                              // 创建时间
 	UpdatedAt    time.Time `gorm:"column:updated_at;type:datetime" json:"updatedAt"`                              // 更新时间
 	DeletedAt    time.Time `gorm:"column:deleted_at;type:datetime" json:"deletedAt"`                              // 删除时间
@@ -21,6 +22,7 @@ var GroupColumns = struct {
 	Name         string
 	Introduction string
 	Extra        string
+	UserID       string
 	CreatedAt    string
 	UpdatedAt    string
 	DeletedAt    string
@@ -29,6 +31,7 @@ var GroupColumns = struct {
 	Name:         "name",
 	Introduction: "introduction",
 	Extra:        "extra",
+	UserID:       "user_id",
 	CreatedAt:    "created_at",
 	UpdatedAt:    "updated_at",
 	DeletedAt:    "deleted_at",
