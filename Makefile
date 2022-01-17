@@ -23,8 +23,10 @@ proto: download
 	@protoc -I=internal/jim_proto/proto \
 		-I=$(GOPATH)/pkg/mod \
 		-I=$(GOPATH)/pkg/mod/github.com/grpc-ecosystem/grpc-gateway@v1.16.0/third_party/googleapis \
-      --go_out=internal/jim_proto/ --go-grpc_out=internal/jim_proto/ --grpc-gateway_out=internal/jim_proto/ --govalidators_out=internal/jim_proto/ \
+		-I=$(GOPATH)/pkg/mod/github.com/envoyproxy/protoc-gen-validate@v0.6.3 \
+      --go_out=internal/jim_proto/ --go-grpc_out=internal/jim_proto/ --grpc-gateway_out=internal/jim_proto/ --validate_out="lang=go:internal/jim_proto/" \
       --grpc-gateway_opt logtostderr=true internal/jim_proto/proto/*.proto
+
 tidy:
 	@go mod tidy
 download:

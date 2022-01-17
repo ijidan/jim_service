@@ -28,6 +28,7 @@ func newGroup(db *gorm.DB) group {
 	_group.Name = field.NewString(tableName, "name")
 	_group.Introduction = field.NewString(tableName, "introduction")
 	_group.Extra = field.NewString(tableName, "extra")
+	_group.AtavarURL = field.NewString(tableName, "atavar_url")
 	_group.UserID = field.NewInt64(tableName, "user_id")
 	_group.CreatedAt = field.NewTime(tableName, "created_at")
 	_group.UpdatedAt = field.NewTime(tableName, "updated_at")
@@ -51,6 +52,7 @@ type group struct {
 	Name         field.String
 	Introduction field.String
 	Extra        field.String
+	AtavarURL    field.String
 	UserID       field.Int64
 	CreatedAt    field.Time
 	UpdatedAt    field.Time
@@ -68,6 +70,7 @@ func (g group) As(alias string) *group {
 	g.Name = field.NewString(alias, "name")
 	g.Introduction = field.NewString(alias, "introduction")
 	g.Extra = field.NewString(alias, "extra")
+	g.AtavarURL = field.NewString(alias, "atavar_url")
 	g.UserID = field.NewInt64(alias, "user_id")
 	g.CreatedAt = field.NewTime(alias, "created_at")
 	g.UpdatedAt = field.NewTime(alias, "updated_at")
@@ -88,11 +91,12 @@ func (g *group) GetFieldByName(fieldName string) (field.Expr, bool) {
 }
 
 func (g *group) fillFieldMap() {
-	g.fieldMap = make(map[string]field.Expr, 9)
+	g.fieldMap = make(map[string]field.Expr, 10)
 	g.fieldMap["id"] = g.ID
 	g.fieldMap["name"] = g.Name
 	g.fieldMap["introduction"] = g.Introduction
 	g.fieldMap["extra"] = g.Extra
+	g.fieldMap["atavar_url"] = g.AtavarURL
 	g.fieldMap["user_id"] = g.UserID
 	g.fieldMap["created_at"] = g.CreatedAt
 	g.fieldMap["updated_at"] = g.UpdatedAt
