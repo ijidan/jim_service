@@ -28,9 +28,9 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserR
 	if err != nil {
 		return nil, err1
 	}
-	rsp := proto_build.CreateUserResponse{User: protoUser}
+	rsp := &proto_build.CreateUserResponse{User: protoUser}
 	defer s.AddSpan(c, pkg.GetFuncName(), req, rsp.String())
-	return &rsp, nil
+	return rsp, nil
 }
 
 func (s *UserService) GetUser(c context.Context, req *proto_build.GetUserRequest) (*proto_build.GetUserResponse, error) {

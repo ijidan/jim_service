@@ -25,8 +25,8 @@ func newGroupUser(db *gorm.DB) groupUser {
 	tableName := _groupUser.groupUserDo.TableName()
 	_groupUser.ALL = field.NewField(tableName, "*")
 	_groupUser.ID = field.NewUint64(tableName, "id")
-	_groupUser.GroupID = field.NewInt64(tableName, "group_id")
-	_groupUser.UserID = field.NewInt64(tableName, "user_id")
+	_groupUser.GroupID = field.NewUint64(tableName, "group_id")
+	_groupUser.UserID = field.NewUint64(tableName, "user_id")
 	_groupUser.UserShowName = field.NewString(tableName, "user_show_name")
 	_groupUser.Extra = field.NewString(tableName, "extra")
 	_groupUser.CreatedAt = field.NewTime(tableName, "created_at")
@@ -43,8 +43,8 @@ type groupUser struct {
 
 	ALL          field.Field
 	ID           field.Uint64
-	GroupID      field.Int64
-	UserID       field.Int64
+	GroupID      field.Uint64
+	UserID       field.Uint64
 	UserShowName field.String
 	Extra        field.String
 	CreatedAt    field.Time
@@ -59,8 +59,8 @@ func (g groupUser) As(alias string) *groupUser {
 
 	g.ALL = field.NewField(alias, "*")
 	g.ID = field.NewUint64(alias, "id")
-	g.GroupID = field.NewInt64(alias, "group_id")
-	g.UserID = field.NewInt64(alias, "user_id")
+	g.GroupID = field.NewUint64(alias, "group_id")
+	g.UserID = field.NewUint64(alias, "user_id")
 	g.UserShowName = field.NewString(alias, "user_show_name")
 	g.Extra = field.NewString(alias, "extra")
 	g.CreatedAt = field.NewTime(alias, "created_at")

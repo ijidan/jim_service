@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/internal/model"
+	"jim_service/pkg"
 )
 
 const (
@@ -126,6 +127,125 @@ func CreateUserFileMessage(db *gorm.DB, senderId uint64, toUserId uint64, file *
 		SenderType:   SenderTypeUser,
 		ReceiverID:   toUserId,
 		ReceiverType: ReceiverTypeUser,
+		MessageType:  MessageTypeFile,
+		Data:         file.String(),
+	}
+	err := db.Create(message).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return message, nil
+}
+
+func CreateGroupTextMessage(db *gorm.DB, senderId uint64, toGroupId uint64, atUserId []uint64, text *proto_build.TextMessage) (*model.Message, error) {
+	message := &model.Message{
+		SenderID:     senderId,
+		SenderType:   SenderTypeGroup,
+		ReceiverID:   toGroupId,
+		AtUserID:     pkg.ConvertUintSlice2SepString(atUserId),
+		ReceiverType: ReceiverTypeGroup,
+		MessageType:  MessageTypeText,
+		Data:         text.Content,
+	}
+	err := db.Create(message).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return message, nil
+}
+
+func CreateGroupLocationMessage(db *gorm.DB, senderId uint64, toGroupId uint64, atUserId []uint64, location *proto_build.LocationMessage) (*model.Message, error) {
+	message := &model.Message{
+		SenderID:     senderId,
+		SenderType:   SenderTypeGroup,
+		ReceiverID:   toGroupId,
+		AtUserID:     pkg.ConvertUintSlice2SepString(atUserId),
+		ReceiverType: ReceiverTypeGroup,
+		MessageType:  MessageTypeLocation,
+		Data:         location.String(),
+	}
+	err := db.Create(message).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return message, nil
+}
+
+func CreateGroupFaceMessage(db *gorm.DB, senderId uint64, toGroupId uint64, atUserId []uint64, face *proto_build.FaceMessage) (*model.Message, error) {
+	message := &model.Message{
+		SenderID:     senderId,
+		SenderType:   SenderTypeGroup,
+		ReceiverID:   toGroupId,
+		AtUserID:     pkg.ConvertUintSlice2SepString(atUserId),
+		ReceiverType: ReceiverTypeGroup,
+		MessageType:  MessageTypeFace,
+		Data:         face.String(),
+	}
+	err := db.Create(message).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return message, nil
+}
+
+func CreateGroupSoundMessage(db *gorm.DB, senderId uint64, toGroupId uint64, atUserId []uint64, sound *proto_build.SoundMessage) (*model.Message, error) {
+	message := &model.Message{
+		SenderID:     senderId,
+		SenderType:   SenderTypeGroup,
+		ReceiverID:   toGroupId,
+		AtUserID:     pkg.ConvertUintSlice2SepString(atUserId),
+		ReceiverType: ReceiverTypeGroup,
+		MessageType:  MessageTypeSound,
+		Data:         sound.String(),
+	}
+	err := db.Create(message).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return message, nil
+}
+
+func CreateGroupVideoMessage(db *gorm.DB, senderId uint64, toGroupId uint64, atUserId []uint64, video *proto_build.VideoMessage) (*model.Message, error) {
+	message := &model.Message{
+		SenderID:     senderId,
+		SenderType:   SenderTypeGroup,
+		ReceiverID:   toGroupId,
+		AtUserID:     pkg.ConvertUintSlice2SepString(atUserId),
+		ReceiverType: ReceiverTypeGroup,
+		MessageType:  MessageTypeVideo,
+		Data:         video.String(),
+	}
+	err := db.Create(message).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return message, nil
+}
+
+func CreateGroupImageMessage(db *gorm.DB, senderId uint64, toGroupId uint64, atUserId []uint64, image *proto_build.ImageMessageItem) (*model.Message, error) {
+	message := &model.Message{
+		SenderID:     senderId,
+		SenderType:   SenderTypeGroup,
+		ReceiverID:   toGroupId,
+		AtUserID:     pkg.ConvertUintSlice2SepString(atUserId),
+		ReceiverType: ReceiverTypeGroup,
+		MessageType:  MessageTypeImage,
+		Data:         image.String(),
+	}
+	err := db.Create(message).Error
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return message, nil
+}
+
+func CreateGroupFileMessage(db *gorm.DB, senderId uint64, toGroupId uint64, atUserId []uint64, file *proto_build.FileMessage) (*model.Message, error) {
+	message := &model.Message{
+		SenderID:     senderId,
+		SenderType:   SenderTypeGroup,
+		ReceiverID:   toGroupId,
+		AtUserID:     pkg.ConvertUintSlice2SepString(atUserId),
+		ReceiverType: ReceiverTypeGroup,
 		MessageType:  MessageTypeFile,
 		Data:         file.String(),
 	}

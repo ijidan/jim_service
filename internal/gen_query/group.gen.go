@@ -29,7 +29,7 @@ func newGroup(db *gorm.DB) group {
 	_group.Introduction = field.NewString(tableName, "introduction")
 	_group.Extra = field.NewString(tableName, "extra")
 	_group.AtavarURL = field.NewString(tableName, "atavar_url")
-	_group.UserID = field.NewInt64(tableName, "user_id")
+	_group.UserID = field.NewUint64(tableName, "user_id")
 	_group.CreatedAt = field.NewTime(tableName, "created_at")
 	_group.UpdatedAt = field.NewTime(tableName, "updated_at")
 	_group.DeletedAt = field.NewField(tableName, "deleted_at")
@@ -53,7 +53,7 @@ type group struct {
 	Introduction field.String
 	Extra        field.String
 	AtavarURL    field.String
-	UserID       field.Int64
+	UserID       field.Uint64
 	CreatedAt    field.Time
 	UpdatedAt    field.Time
 	DeletedAt    field.Field
@@ -71,7 +71,7 @@ func (g group) As(alias string) *group {
 	g.Introduction = field.NewString(alias, "introduction")
 	g.Extra = field.NewString(alias, "extra")
 	g.AtavarURL = field.NewString(alias, "atavar_url")
-	g.UserID = field.NewInt64(alias, "user_id")
+	g.UserID = field.NewUint64(alias, "user_id")
 	g.CreatedAt = field.NewTime(alias, "created_at")
 	g.UpdatedAt = field.NewTime(alias, "updated_at")
 	g.DeletedAt = field.NewField(alias, "deleted_at")

@@ -15,8 +15,8 @@ const TableNameGroupUser = "group_user"
 // GroupUser mapped from table <group_user>
 type GroupUser struct {
 	ID           uint64         `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`    // 自增主键
-	GroupID      int64          `gorm:"column:group_id;not null" json:"group_id"`             // 组id
-	UserID       int64          `gorm:"column:user_id;not null" json:"user_id"`               // 用户id
+	GroupID      uint64         `gorm:"column:group_id;not null" json:"group_id"`             // 组id
+	UserID       uint64         `gorm:"column:user_id;not null" json:"user_id"`               // 用户id
 	UserShowName string         `gorm:"column:user_show_name;not null" json:"user_show_name"` // 用户在群组的昵称
 	Extra        string         `gorm:"column:extra;not null" json:"extra"`                   // 附加属性
 	CreatedAt    time.Time      `gorm:"column:created_at" json:"created_at"`                  // 创建时间

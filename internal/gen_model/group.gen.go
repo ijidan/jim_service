@@ -19,7 +19,7 @@ type Group struct {
 	Introduction string         `gorm:"column:introduction;not null" json:"introduction"`  // 群组简介
 	Extra        string         `gorm:"column:extra;not null" json:"extra"`                // 附加属性
 	AtavarURL    string         `gorm:"column:atavar_url;not null" json:"atavar_url"`      // 头像
-	UserID       int64          `gorm:"column:user_id;not null;default:0" json:"user_id"`  // 群主ID
+	UserID       uint64         `gorm:"column:user_id;not null;default:0" json:"user_id"`  // 群主ID
 	CreatedAt    time.Time      `gorm:"column:created_at" json:"created_at"`               // 创建时间
 	UpdatedAt    time.Time      `gorm:"column:updated_at" json:"updated_at"`               // 更新时间
 	DeletedAt    gorm.DeletedAt `gorm:"column:deleted_at" json:"deleted_at"`               // 删除时间

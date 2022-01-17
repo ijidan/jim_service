@@ -11,9 +11,8 @@ import (
 	"jim_service/pkg"
 )
 
-
 const (
-	GenderMale = "1"
+	GenderMale   = "1"
 	GenderFemale = "2"
 )
 
@@ -60,25 +59,26 @@ func CreateUser(db *gorm.DB, nickName string, password string, gender string, av
 	return user, nil
 }
 
-func GetProtoUser(db *gorm.DB,nickName string,password string)(*proto_build.User,error)  {
-	passwordHash,err:=pkg.HashPassword(password)
-	if err!=nil{
-		return nil,status.Error(codes.Internal,err.Error())
+func GetProtoUser(db *gorm.DB, nickName string, password string) (*proto_build.User, error) {
+	passwordHash, err := pkg.HashPassword(password)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 	var user model.User
-	err1:=db.Where("nickname=? and password=?",nickName,passwordHash).First(&user).Error
-	if err1!=nil{
-		return nil,ConvertModelQueryErrorToGrpcStatusError(err1)
+	err1 := db.Where("nickname=? and password=?", nickName, passwordHash).First(&user).Error
+	if err1 != nil {
+		return nil, ConvertModelQueryErrorToGrpcStatusError(err1)
 	}
-	protoUser:=ConvertUserToProtoUser(user)
-	return protoUser,nil
+	protoUser := ConvertUserToProtoUser(user)
+	return protoUser, nil
 
 }
+
 func GetProtoUserByUserId(db *gorm.DB, userId uint64) (*proto_build.User, error) {
 	var user model.User
 	err := db.Where("id=?", userId).First(&user).Error
 	if err != nil {
-		return nil,ConvertModelQueryErrorToGrpcStatusError(err)
+		return nil, ConvertModelQueryErrorToGrpcStatusError(err)
 	}
 	protoUser := ConvertUserToProtoUser(user)
 	return protoUser, nil
@@ -90,9 +90,9 @@ func QueryProtoUser(db *gorm.DB, keyword string, page uint64, pageSize uint64) (
 
 	var user model.User
 	var rows []model.User
-	order :=  "id desc"
+	order := "id desc"
 	pager, err := model.QueryPager(db, &user, &rows, order, page, pageSize, where, whereValue)
-	if err!=nil{
+	if err != nil {
 		return nil, nil, ConvertModelQueryErrorToGrpcStatusError(err)
 	}
 	var protoUserList []*proto_build.User
@@ -106,13 +106,12 @@ func QueryProtoUser(db *gorm.DB, keyword string, page uint64, pageSize uint64) (
 	return protoUserList, protoPager, nil
 }
 
-func UpdateUserPassword(db *gorm.DB,userId uint64,password string) error {
-	err:=db.Model(&model.User{}).Where("id=?",userId).UpdateColumn("password",password).Error
+func UpdateUserPassword(db *gorm.DB, userId uint64, password string) error {
+	err := db.Model(&model.User{}).Where("id=?", userId).UpdateColumn("password", password).Error
 	return ConvertModelQueryErrorToGrpcStatusError(err)
 }
 
-func UpdateUserAvatar(db *gorm.DB,userId uint64,avatarUrl string)  error{
-	err:=db.Model(&model.User{}).Where("id=?",userId).UpdateColumn("avatar_url",avatarUrl).Error
+func UpdateUserAvatar(db *gorm.DB, userId uint64, avatarUrl string) error {
+	err := db.Model(&model.User{}).Where("id=?", userId).UpdateColumn("avatar_url", avatarUrl).Error
 	return ConvertModelQueryErrorToGrpcStatusError(err)
 }
-
