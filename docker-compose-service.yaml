@@ -1,0 +1,10 @@
+version: "3"
+services:
+  envoy:
+    image: 'envoyproxy/envoy-dev:136e676c328a0dc1e325d845464d0eec508eddbd'
+  golang:
+    build: .
+    ports:
+      - "9093:9093"
+    tty: true
+    container_name: jim_service

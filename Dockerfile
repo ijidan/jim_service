@@ -1,4 +1,5 @@
-FROM golang:1.17-alpine3.15 AS builder
+#FROM golang:1.17-alpine3.15 AS builder
+FROM golang:1.17 AS builder
 
 WORKDIR /data/build
 ENV GO111MODULE=on \
@@ -13,8 +14,8 @@ COPY . .
 RUN go build -ldflags="-s -w" -installsuffix cgo  -o app
 RUN go build -ldflags="-s -w" -installsuffix cgo   -o jim_service cmd/main/main.go
 
-
-FROM alpine:3.15 AS final
+#FROM alpine:3.15 AS final
+FROM golang:1.17 AS final
 WORKDIR /data/build
 
 COPY --from=builder /data/build/config.yaml .
@@ -23,6 +24,6 @@ RUN ls
 COPY --from=builder /data/build/app .
 COPY --from=builder /data/build/jim_service .
 
-EXPOSE 8081 8082 8083
+EXPOSE 9093
 
 ENTRYPOINT ["./app"]

@@ -12,3 +12,5 @@ GRPC涉及的库：
   
 编译命令：
   - protoc --proto_path=/vagrant/go_project/src/jgo/protected/proto  --go_out=plugins=grpc:/vagrant/go_project/src/jgo/protected/proto/build  *.proto
+bin目录命令：
+  - goreman  gormt  grpcui  grpcurl  protoc-gen-doc  protoc-gen-go  protoc-gen-go-grpc  protoc-gen-govalidators  protoc-gen-grpc-gateway  protoc-gen-openapiv2  protoc-gen-validate

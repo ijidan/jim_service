@@ -15,7 +15,7 @@ type UserService struct {
 	proto_build.UnimplementedUserServiceServer
 }
 
-func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserRequest) (*proto_build.CreateUserResponse, error) {
+func (s *UserService) CreateUser(c context.Context, req *proto_build.UserCreateRequest) (*proto_build.UserCreateResponse, error) {
 	if req.Password != req.PasswordRpt {
 		return nil, status.Error(codes.Internal, "password ,password_rpt not the same")
 	}
@@ -28,7 +28,7 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.CreateUserR
 	if err != nil {
 		return nil, err1
 	}
-	rsp := &proto_build.CreateUserResponse{User: protoUser}
+	rsp := &proto_build.UserCreateResponse{User: protoUser}
 	defer s.AddSpan(c, pkg.GetFuncName(), req, rsp.String())
 	return rsp, nil
 }

@@ -33,10 +33,26 @@ require (
 )
 
 require (
+	github.com/Masterminds/goutils v1.1.1 // indirect
+	github.com/Masterminds/semver v1.5.0 // indirect
+	github.com/Masterminds/sprig v2.22.0+incompatible // indirect
+	github.com/aokoli/goutils v1.1.1 // indirect
 	github.com/envoyproxy/protoc-gen-validate v0.6.3 // indirect
+	github.com/google/uuid v1.3.0 // indirect
+	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/iancoleman/strcase v0.2.0 // indirect
+	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/lyft/protoc-gen-star v0.6.0 // indirect
+	github.com/mitchellh/copystructure v1.2.0 // indirect
+	github.com/mitchellh/go-homedir v1.1.0 // indirect
+	github.com/mitchellh/reflectwalk v1.0.2 // indirect
+	github.com/pseudomuto/protoc-gen-doc v1.5.0 // indirect
+	github.com/pseudomuto/protokit v0.2.0 // indirect
+	github.com/rs/zerolog v1.18.0 // indirect
+	github.com/stretchr/objx v0.2.0 // indirect
+	github.com/vektra/mockery/v2 v2.9.4 // indirect
 	golang.org/x/lint v0.0.0-20210508222113-6edffad5e616 // indirect
+	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 )
 
 require (
@@ -50,7 +66,7 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-module/carbon/v2 v2.0.1 // indirect
-	github.com/gorilla/websocket v1.4.1 // indirect
+	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
@@ -88,12 +104,12 @@ require (
 	github.com/subosito/gotenv v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.2.6 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+	golang.org/x/crypto v0.0.0-20220112180741-5e0467b6c7ce
 	golang.org/x/mod v0.5.1 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/tools v0.1.8 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
-	google.golang.org/genproto v0.0.0-20211223182754-3ac035c7e7cb
+	google.golang.org/genproto v0.0.0-20220118154757-00ab72f36ad5
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gorm.io/hints v1.1.0 // indirect
 )
