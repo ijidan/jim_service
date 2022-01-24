@@ -33,25 +33,25 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.UserCreateR
 	return rsp, nil
 }
 
-func (s *UserService) GetUser(c context.Context, req *proto_build.GetUserRequest) (*proto_build.GetUserResponse, error) {
+func (s *UserService) GetUser(c context.Context, req *proto_build.UserGetRequest) (*proto_build.UserGetResponse, error) {
 	id := req.GetId()
 	protoUser, err := repository.GetProtoUserByUserId(pkg.Db, id)
 	if err != nil {
 		return nil, err
 	}
-	rsp := &proto_build.GetUserResponse{
+	rsp := &proto_build.UserGetResponse{
 		User: protoUser,
 	}
 	defer s.AddSpan(c, pkg.GetFuncName(), req, rsp.String())
 	return rsp, nil
 }
 
-func (s *UserService) QueryUser(c context.Context, req *proto_build.QueryUserRequest) (*proto_build.QueryUserResponse, error) {
+func (s *UserService) QueryUser(c context.Context, req *proto_build.UserQueryRequest) (*proto_build.UserQueryResponse, error) {
 	protoUserList, pager, err := repository.QueryProtoUser(pkg.Db, req.GetKeyword(), req.GetPage(), req.GetPageSize())
 	if err != nil {
 		return nil, err
 	}
-	rsp := &proto_build.QueryUserResponse{
+	rsp := &proto_build.UserQueryResponse{
 		Pager: pager,
 		User:  protoUserList,
 	}
