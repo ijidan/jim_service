@@ -35,7 +35,7 @@ func (s *MessageService) SendUserLocationMessage(c context.Context, req *proto_b
 	return rsp, nil
 }
 
-func (s *MessageService) SendUserFceMessage(c context.Context, req *proto_build.SendUserFaceMessageRequest) (*proto_build.SendUserFaceMessageResponse, error) {
+func (s *MessageService) SendUserFaceMessage(c context.Context, req *proto_build.SendUserFaceMessageRequest) (*proto_build.SendUserFaceMessageResponse, error) {
 	userId := s.GetLoginUserId()
 	message, err := repository.CreateUserFaceMessage(pkg.Db, userId, req.ToUserId, req.Face)
 	if err != nil {
