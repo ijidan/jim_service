@@ -34,10 +34,7 @@ require (
 	strk.kbt.io/projects/go/libravatar v0.0.0-20191008002943-06d1c002b251
 )
 
-require (
-	github.com/stretchr/objx v0.2.0 // indirect
-	github.com/tal-tech/go-zero v1.2.5 // indirect
-)
+require github.com/stretchr/objx v0.2.0 // indirect
 
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
