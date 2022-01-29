@@ -3,13 +3,13 @@ package test
 import (
 	"context"
 	"flag"
-	"fmt"
-	"github.com/golang-module/carbon/v2"
+	"github.com/bxcodec/faker/v3"
 	"github.com/spf13/cast"
 	"github.com/stretchr/testify/require"
 	"jim_service/internal/call"
 	"jim_service/internal/jim_proto/proto_build"
 	"jim_service/pkg"
+	"math/rand"
 	"testing"
 )
 
@@ -27,10 +27,13 @@ func init() {
 func TestCreateUser(t *testing.T) {
 	defer basic.Close()
 	flag.Parse()
+	gender := []proto_build.Gender{proto_build.Gender_Unknown, proto_build.Gender_Male, proto_build.Gender_Female}
 	for i := 0; i < *userNum; i++ {
-		req := &proto_build.CreateUserRequest{
-			Nickname:    fmt.Sprintf("jidan%d", carbon.Now().Timestamp()),
-			Gender:      proto_build.Gender_Male,
+		name:=faker.Name()
+		t.Log(name)
+		req := &proto_build.UserCreateRequest{
+			Nickname:    name,
+			Gender:      gender[rand.Intn(len(gender))],
 			AvatarUrl:   "https://cdn.libravatar.org/static/img/nobody/80.png",
 			Password:    "jidan123456",
 			PasswordRpt: "jidan123456",
@@ -44,7 +47,7 @@ func TestCreateUser(t *testing.T) {
 func TestGetUser(t *testing.T) {
 	defer basic.Close()
 	flag.Parse()
-	req := &proto_build.GetUserRequest{
+	req := &proto_build.UserGetRequest{
 		Id: cast.ToUint64(userId),
 	}
 	rsp, err := client.GetUser(context.Background(), req)
@@ -54,7 +57,7 @@ func TestGetUser(t *testing.T) {
 
 func TestQueryUser(t *testing.T) {
 	defer basic.Close()
-	req := &proto_build.QueryUserRequest{
+	req := &proto_build.UserQueryRequest{
 		Keyword:  "jidan",
 		Page:     1,
 		PageSize: 10,
@@ -70,9 +73,9 @@ func TestUpdateAvatar(t *testing.T) {
 	defer basic.Close()
 	flag.Parse()
 
-	req:=&proto_build.UpdateAvatarRequest{Url: *userImg}
-	rsp,err:=client.UpdateAvatar(context.Background(),req)
-	require.Nil(t, err,err)
+	req := &proto_build.UpdateAvatarRequest{Url: *userImg}
+	rsp, err := client.UpdateAvatar(context.Background(), req)
+	require.Nil(t, err, err)
 
 	t.Log(rsp)
 }

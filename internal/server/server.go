@@ -23,6 +23,7 @@ import (
 	"jim_service/config"
 	"jim_service/internal/interceptor"
 	"jim_service/internal/jim_proto/proto_build"
+	"jim_service/internal/repository"
 	service "jim_service/internal/service"
 	"jim_service/pkg"
 	"net/http"
@@ -30,8 +31,11 @@ import (
 	"strings"
 )
 
-var userService *service.UserService
+var commonService *service.CommonService
+var groupService *service.GroupService
+var messageService *service.MessageService
 var pingService *service.PingService
+var userService *service.UserService
 
 func runHttpServer(config *config.Config) *http.ServeMux {
 	serveMux := http.NewServeMux()
@@ -67,8 +71,11 @@ func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
 	}
 	server := grpc.NewServer(opts...)
 
-	proto_build.RegisterUserServiceServer(server, userService)
+	proto_build.RegisterCommonServiceServer(server,commonService)
+	proto_build.RegisterGroupServiceServer(server,groupService)
+	proto_build.RegisterMessageServiceServer(server,messageService)
 	proto_build.RegisterPingServiceServer(server, pingService)
+	proto_build.RegisterUserServiceServer(server, userService)
 	reflection.Register(server)
 
 	ServiceRegister()
@@ -122,5 +129,9 @@ func RunServer(client *clientv3.Client,config *config.Config) error {
 
 	httpServer.Handle("/", gatewayServer)
 	return http.ListenAndServe(address, grpcHandlerFunc(grpcServer, httpServer))
+}
+
+func RunFunc()  {
+	go repository.SubscribeNewUser()
 }
 

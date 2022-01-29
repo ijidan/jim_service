@@ -1,11 +1,13 @@
 package service
 
 import (
+	"context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"io"
 	"jim_service/config"
 	"jim_service/internal/jim_proto/proto_build"
+	"jim_service/internal/repository"
 	"jim_service/pkg"
 )
 
@@ -46,6 +48,16 @@ func (s *CommonService) UploadImage(stream proto_build.CommonService_UploadImage
 	}
 	return nil
 }
+
+func (s *CommonService)	SendEmail(c context.Context, req *proto_build.SendEmailRequest) (*proto_build.SendEmailResponse, error){
+	err:=repository.SendEmail(req.Receiver,req.Cc,req.Subject,req.Content)
+	if err!=nil{
+		return &proto_build.SendEmailResponse{},err
+	}
+	rsp:=&proto_build.SendEmailResponse{}
+	return rsp,nil
+}
+
 
 func NewCommonService(config *config.Config) *CommonService {
 	instance := &CommonService{BasicService: BasicService{

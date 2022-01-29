@@ -63,9 +63,22 @@ type Config struct {
 		Host    []string `yaml:"host"`
 		Timeout uint64   `yaml:"timeout"`
 	}
-	Smms struct{
-		User string `yaml:"user"`
+	Smms struct {
+		User     string `yaml:"user"`
 		Password string `yaml:"password"`
+	}
+	Email struct {
+		Smtp     string `yaml:"smtp"`
+		Port     uint64 `yaml:"port"`
+		Ssl      bool   `yaml:"ssl"`
+		Account  string `yaml:"account"`
+		Password string `yaml:"password"`
+	}
+	PubSub struct{
+		Brokers []string `yaml:"brokers"`
+	}
+	Manager struct{
+		Email map[string]string `yaml:"email"`
 	}
 }
 

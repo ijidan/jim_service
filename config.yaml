@@ -42,3 +42,20 @@ etcd:
 smms:
   user: jidan
   password: zhuan1234
+
+email:
+  smtp: smtp.qq.com
+  port: 465
+  ssl: true
+  account: 394777474@qq.com
+  password: "urykyncxlahtbijf"
+
+pubsub:
+  brokers:
+    - "127.0.0.1:9092"
+
+manager:
+  email:
+    "jidan" : "394777474@qq.com"
+
+

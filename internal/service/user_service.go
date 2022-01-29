@@ -24,6 +24,7 @@ func (s *UserService) CreateUser(c context.Context, req *proto_build.UserCreateR
 	if err != nil {
 		return nil, err
 	}
+	go repository.PublishNewUser(user.ID)
 	protoUser, err1 := repository.GetProtoUserByUserId(pkg.Db, user.ID)
 	if err != nil {
 		return nil, err1
@@ -58,41 +59,39 @@ func (s *UserService) QueryUser(c context.Context, req *proto_build.UserQueryReq
 	return rsp, nil
 }
 
-
 func (s *UserService) UserLogin(c context.Context, req *proto_build.UserLoginRequest) (*proto_build.UserLoginResponse, error) {
-	protoUser,err:=repository.GetProtoUser(pkg.Db,req.GetNickname(),req.GetPassword())
-	if err!=nil{
-		return nil,err
+	protoUser, err := repository.GetProtoUser(pkg.Db, req.GetNickname(), req.GetPassword())
+	if err != nil {
+		return nil, err
 	}
-	userId:=protoUser.Id
-	token:=pkg.GenJwtToken(userId,pkg.Conf.Jwt.Secret)
-	rsp:=&proto_build.UserLoginResponse{Token: token}
-	return rsp,nil
+	userId := protoUser.Id
+	token := pkg.GenJwtToken(userId, pkg.Conf.Jwt.Secret)
+	rsp := &proto_build.UserLoginResponse{Token: token}
+	return rsp, nil
 }
 
-
-func (s *UserService) UpdatePassword(c context.Context,req *proto_build.UpdatePasswordRequest)(*proto_build.UpdatePasswordResponse,error)  {
+func (s *UserService) UpdatePassword(c context.Context, req *proto_build.UpdatePasswordRequest) (*proto_build.UpdatePasswordResponse, error) {
 	if req.Password != req.PasswordRpt {
 		return nil, status.Error(codes.Internal, "password ,password_rpt not the same")
 	}
-	userId:=s.GetLoginUserId()
-	err:=repository.UpdateUserPassword(pkg.Db,userId,req.Password)
-	if err!=nil{
-		return nil,status.Error(codes.Internal,err.Error())
+	userId := s.GetLoginUserId()
+	err := repository.UpdateUserPassword(pkg.Db, userId, req.Password)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-	rsp:=&proto_build.UpdatePasswordResponse{}
-	return rsp,nil
+	rsp := &proto_build.UpdatePasswordResponse{}
+	return rsp, nil
 }
 
-func (s *UserService) UpdateAvatar(c context.Context,req *proto_build.UpdateAvatarRequest) (*proto_build.UpdateAvatarResponse, error)  {
-	url:=req.GetUrl()
-	userId:=s.GetLoginUserId()
-	err:=repository.UpdateUserAvatar(pkg.Db,userId,url)
-	if err!=nil{
-		return nil,status.Error(codes.Internal,err.Error())
+func (s *UserService) UpdateAvatar(c context.Context, req *proto_build.UpdateAvatarRequest) (*proto_build.UpdateAvatarResponse, error) {
+	url := req.GetUrl()
+	userId := s.GetLoginUserId()
+	err := repository.UpdateUserAvatar(pkg.Db, userId, url)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-	rsp:=&proto_build.UpdateAvatarResponse{}
-	return rsp,nil
+	rsp := &proto_build.UpdateAvatarResponse{}
+	return rsp, nil
 }
 
 func NewUserService(config *config.Config) *UserService {
