@@ -42,7 +42,6 @@ etcd:
 smms:
   user: jidan
   password: zhuan1234
-
 email:
   smtp: smtp.qq.com
   port: 465

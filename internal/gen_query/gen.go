@@ -13,63 +13,138 @@ import (
 
 func Use(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		Device:    newDevice(db),
-		DeviceAck: newDeviceAck(db),
-		Gid:       newGid(db),
-		Group:     newGroup(db),
-		GroupUser: newGroupUser(db),
-		Message:   newMessage(db),
-		User:      newUser(db),
+		db:                     db,
+		Device:                 newDevice(db),
+		DeviceAck:              newDeviceAck(db),
+		Feed:                   newFeed(db),
+		FeedImage:              newFeedImage(db),
+		FeedLike:               newFeedLike(db),
+		FeedVideo:              newFeedVideo(db),
+		Gid:                    newGid(db),
+		GoadminMenu:            newGoadminMenu(db),
+		GoadminOperationLog:    newGoadminOperationLog(db),
+		GoadminPermissions:     newGoadminPermissions(db),
+		GoadminRoleMenu:        newGoadminRoleMenu(db),
+		GoadminRolePermissions: newGoadminRolePermissions(db),
+		GoadminRoleUsers:       newGoadminRoleUsers(db),
+		GoadminRoles:           newGoadminRoles(db),
+		GoadminSession:         newGoadminSession(db),
+		GoadminSite:            newGoadminSite(db),
+		GoadminUserPermissions: newGoadminUserPermissions(db),
+		GoadminUsers:           newGoadminUsers(db),
+		Group:                  newGroup(db),
+		GroupUser:              newGroupUser(db),
+		Message:                newMessage(db),
+		User:                   newUser(db),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	Device    device
-	DeviceAck deviceAck
-	Gid       gid
-	Group     group
-	GroupUser groupUser
-	Message   message
-	User      user
+	Device                 device
+	DeviceAck              deviceAck
+	Feed                   feed
+	FeedImage              feedImage
+	FeedLike               feedLike
+	FeedVideo              feedVideo
+	Gid                    gid
+	GoadminMenu            goadminMenu
+	GoadminOperationLog    goadminOperationLog
+	GoadminPermissions     goadminPermissions
+	GoadminRoleMenu        goadminRoleMenu
+	GoadminRolePermissions goadminRolePermissions
+	GoadminRoleUsers       goadminRoleUsers
+	GoadminRoles           goadminRoles
+	GoadminSession         goadminSession
+	GoadminSite            goadminSite
+	GoadminUserPermissions goadminUserPermissions
+	GoadminUsers           goadminUsers
+	Group                  group
+	GroupUser              groupUser
+	Message                message
+	User                   user
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		Device:    q.Device.clone(db),
-		DeviceAck: q.DeviceAck.clone(db),
-		Gid:       q.Gid.clone(db),
-		Group:     q.Group.clone(db),
-		GroupUser: q.GroupUser.clone(db),
-		Message:   q.Message.clone(db),
-		User:      q.User.clone(db),
+		db:                     db,
+		Device:                 q.Device.clone(db),
+		DeviceAck:              q.DeviceAck.clone(db),
+		Feed:                   q.Feed.clone(db),
+		FeedImage:              q.FeedImage.clone(db),
+		FeedLike:               q.FeedLike.clone(db),
+		FeedVideo:              q.FeedVideo.clone(db),
+		Gid:                    q.Gid.clone(db),
+		GoadminMenu:            q.GoadminMenu.clone(db),
+		GoadminOperationLog:    q.GoadminOperationLog.clone(db),
+		GoadminPermissions:     q.GoadminPermissions.clone(db),
+		GoadminRoleMenu:        q.GoadminRoleMenu.clone(db),
+		GoadminRolePermissions: q.GoadminRolePermissions.clone(db),
+		GoadminRoleUsers:       q.GoadminRoleUsers.clone(db),
+		GoadminRoles:           q.GoadminRoles.clone(db),
+		GoadminSession:         q.GoadminSession.clone(db),
+		GoadminSite:            q.GoadminSite.clone(db),
+		GoadminUserPermissions: q.GoadminUserPermissions.clone(db),
+		GoadminUsers:           q.GoadminUsers.clone(db),
+		Group:                  q.Group.clone(db),
+		GroupUser:              q.GroupUser.clone(db),
+		Message:                q.Message.clone(db),
+		User:                   q.User.clone(db),
 	}
 }
 
 type queryCtx struct {
-	Device    deviceDo
-	DeviceAck deviceAckDo
-	Gid       gidDo
-	Group     groupDo
-	GroupUser groupUserDo
-	Message   messageDo
-	User      userDo
+	Device                 deviceDo
+	DeviceAck              deviceAckDo
+	Feed                   feedDo
+	FeedImage              feedImageDo
+	FeedLike               feedLikeDo
+	FeedVideo              feedVideoDo
+	Gid                    gidDo
+	GoadminMenu            goadminMenuDo
+	GoadminOperationLog    goadminOperationLogDo
+	GoadminPermissions     goadminPermissionsDo
+	GoadminRoleMenu        goadminRoleMenuDo
+	GoadminRolePermissions goadminRolePermissionsDo
+	GoadminRoleUsers       goadminRoleUsersDo
+	GoadminRoles           goadminRolesDo
+	GoadminSession         goadminSessionDo
+	GoadminSite            goadminSiteDo
+	GoadminUserPermissions goadminUserPermissionsDo
+	GoadminUsers           goadminUsersDo
+	Group                  groupDo
+	GroupUser              groupUserDo
+	Message                messageDo
+	User                   userDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		Device:    *q.Device.WithContext(ctx),
-		DeviceAck: *q.DeviceAck.WithContext(ctx),
-		Gid:       *q.Gid.WithContext(ctx),
-		Group:     *q.Group.WithContext(ctx),
-		GroupUser: *q.GroupUser.WithContext(ctx),
-		Message:   *q.Message.WithContext(ctx),
-		User:      *q.User.WithContext(ctx),
+		Device:                 *q.Device.WithContext(ctx),
+		DeviceAck:              *q.DeviceAck.WithContext(ctx),
+		Feed:                   *q.Feed.WithContext(ctx),
+		FeedImage:              *q.FeedImage.WithContext(ctx),
+		FeedLike:               *q.FeedLike.WithContext(ctx),
+		FeedVideo:              *q.FeedVideo.WithContext(ctx),
+		Gid:                    *q.Gid.WithContext(ctx),
+		GoadminMenu:            *q.GoadminMenu.WithContext(ctx),
+		GoadminOperationLog:    *q.GoadminOperationLog.WithContext(ctx),
+		GoadminPermissions:     *q.GoadminPermissions.WithContext(ctx),
+		GoadminRoleMenu:        *q.GoadminRoleMenu.WithContext(ctx),
+		GoadminRolePermissions: *q.GoadminRolePermissions.WithContext(ctx),
+		GoadminRoleUsers:       *q.GoadminRoleUsers.WithContext(ctx),
+		GoadminRoles:           *q.GoadminRoles.WithContext(ctx),
+		GoadminSession:         *q.GoadminSession.WithContext(ctx),
+		GoadminSite:            *q.GoadminSite.WithContext(ctx),
+		GoadminUserPermissions: *q.GoadminUserPermissions.WithContext(ctx),
+		GoadminUsers:           *q.GoadminUsers.WithContext(ctx),
+		Group:                  *q.Group.WithContext(ctx),
+		GroupUser:              *q.GroupUser.WithContext(ctx),
+		Message:                *q.Message.WithContext(ctx),
+		User:                   *q.User.WithContext(ctx),
 	}
 }
 

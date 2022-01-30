@@ -26,6 +26,7 @@ type User struct {
 	Device    []Device       `gorm:"" json:"device"`
 	Message   []Device       `gorm:"" json:"message"`
 	GroupUser []GroupUser    `gorm:"" json:"group_user"`
+	Feed      []Feed         `gorm:"" json:"feed"`
 }
 
 // TableName User's table name

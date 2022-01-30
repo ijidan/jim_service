@@ -17,8 +17,8 @@ var genGormCmd = &cobra.Command{
 		// specify the output directory (default: "./query")
 		// ### if you want to query without context constrain, set mode gen.WithoutContext ###
 		g := gen.NewGenerator(gen.Config{
-			OutPath: pkg.Root + "/internal/gen_query",
-			ModelPkgPath:pkg.Root + "/internal/gen_model",
+			OutPath:      pkg.Root + "/internal/gen_query",
+			ModelPkgPath: pkg.Root + "/internal/gen_model",
 			/* Mode: gen.WithoutContext|gen.WithDefaultQuery*/
 			//if you want the nullable field generation property to be pointer type, set FieldNullable true
 			/* FieldNullable: true,*/
@@ -42,19 +42,40 @@ var genGormCmd = &cobra.Command{
 		// apply diy interfaces on structs or table models
 		//g.ApplyInterface(func(method model.Method) {}, model.User{}, g.GenerateModel("company"))
 
-		typeOptId:=gen.FieldType("id","uint64")
-		typeOptSenderId:=gen.FieldType("sender_id","uint64")
-		typeOptReceiverId:=gen.FieldType("receiver_id","uint64")
-		typeOfUserId:=gen.FieldType("user_id","uint64")
-		typeOfGroupId:=gen.FieldType("group_id","uint64")
+		typeOptId := gen.FieldType("id", "uint64")
+		typeOptSenderId := gen.FieldType("sender_id", "uint64")
+		typeOptReceiverId := gen.FieldType("receiver_id", "uint64")
+		typeOptUserId := gen.FieldType("user_id", "uint64")
+		typeOptGroupId := gen.FieldType("group_id", "uint64")
+		typeOptFeedId := gen.FieldType("feed_id", "uint64")
+		typeOptOperator:=gen.FieldType("operator","uint64")
 
-		device := g.GenerateModel("device",typeOptId)
+		device := g.GenerateModel("device", typeOptId)
 		deviceAck := g.GenerateModel("device_ack", gen.FieldRelate(field.BelongsTo, "Device", device, &field.RelateConfig{
 			// RelateSlice: true,
 			//GORMTag: "foreignKey:device_id",
-		}),typeOptId)
-		message := g.GenerateModel("message",typeOptId,typeOptSenderId,typeOptReceiverId)
-		groupUser := g.GenerateModel("group_user",typeOptId,typeOfGroupId,typeOfUserId)
+		}), typeOptId)
+		message := g.GenerateModel("message", typeOptId, typeOptSenderId, typeOptReceiverId)
+		groupUser := g.GenerateModel("group_user", typeOptId, typeOptGroupId, typeOptUserId)
+
+		feedImage := g.GenerateModel("feed_image", typeOptId, typeOptFeedId)
+		feedLike := g.GenerateModel("feed_like", typeOptId, typeOptFeedId, typeOptUserId)
+		feedVideo := g.GenerateModel("feed_video", typeOptId, typeOptFeedId)
+
+		feed := g.GenerateModel("feed",
+			gen.FieldRelate(field.HasMany, "FeedImage", feedImage, &field.RelateConfig{
+				// RelateSlice: true,
+				//GORMTag: "foreignKey:group_id",
+			}),
+			gen.FieldRelate(field.HasOne, "FeedVideo", feedVideo, &field.RelateConfig{
+				// RelateSlice: true,
+				//GORMTag: "foreignKey:group_id",
+			}),
+			gen.FieldRelate(field.HasMany, "FeedLike", feedLike, &field.RelateConfig{
+				// RelateSlice: true,
+				//GORMTag: "foreignKey:group_id",
+			}),
+			typeOptId, typeOptUserId,typeOptOperator)
 
 		user := g.GenerateModel("user",
 			gen.FieldRelate(field.HasMany, "Device", device, &field.RelateConfig{
@@ -69,14 +90,19 @@ var genGormCmd = &cobra.Command{
 				// RelateSlice: true,
 				//GORMTag: "foreignKey:user_id",
 			}),
+			gen.FieldRelate(field.HasMany, "Feed", feed, &field.RelateConfig{
+				// RelateSlice: true,
+				//GORMTag: "foreignKey:user_id",
+			}),
 			typeOptId)
+
 		group := g.GenerateModel("group", gen.FieldRelate(field.Many2Many, "GroupUser", groupUser,
 			&field.RelateConfig{
 				// RelateSlice: true,
 				//GORMTag: "foreignKey:group_id",
-			}),typeOptId,typeOfUserId)
+			}), typeOptId, typeOptUserId)
 
-		g.ApplyBasic(device, deviceAck, group, groupUser, message, user)
+		g.ApplyBasic(device, deviceAck, group, groupUser, message, user, feed, feedLike, feedImage, feedVideo)
 		g.ApplyBasic(g.GenerateAllTable(typeOptId)...)
 		// execute the action of code generation
 		g.Execute()

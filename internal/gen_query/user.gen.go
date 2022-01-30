@@ -51,6 +51,27 @@ func newUser(db *gorm.DB) user {
 		RelationField: field.NewRelation("GroupUser", "gen_model.GroupUser"),
 	}
 
+	_user.Feed = userHasManyFeed{
+		db: db.Session(&gorm.Session{}),
+
+		RelationField: field.NewRelation("Feed", "gen_model.Feed"),
+		FeedImage: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Feed.FeedImage", "gen_model.FeedImage"),
+		},
+		FeedVideo: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Feed.FeedVideo", "gen_model.FeedVideo"),
+		},
+		FeedLike: struct {
+			field.RelationField
+		}{
+			RelationField: field.NewRelation("Feed.FeedLike", "gen_model.FeedLike"),
+		},
+	}
+
 	_user.fillFieldMap()
 
 	return _user
@@ -74,6 +95,8 @@ type user struct {
 	Message userHasManyMessage
 
 	GroupUser userManyToManyGroupUser
+
+	Feed userHasManyFeed
 
 	fieldMap map[string]field.Expr
 }
@@ -107,7 +130,7 @@ func (u *user) GetFieldByName(fieldName string) (field.Expr, bool) {
 }
 
 func (u *user) fillFieldMap() {
-	u.fieldMap = make(map[string]field.Expr, 12)
+	u.fieldMap = make(map[string]field.Expr, 13)
 	u.fieldMap["id"] = u.ID
 	u.fieldMap["nickname"] = u.Nickname
 	u.fieldMap["password"] = u.Password
@@ -320,6 +343,82 @@ func (a userManyToManyGroupUserTx) Clear() error {
 }
 
 func (a userManyToManyGroupUserTx) Count() int64 {
+	return a.tx.Count()
+}
+
+type userHasManyFeed struct {
+	db *gorm.DB
+
+	field.RelationField
+
+	FeedImage struct {
+		field.RelationField
+	}
+	FeedVideo struct {
+		field.RelationField
+	}
+	FeedLike struct {
+		field.RelationField
+	}
+}
+
+func (a userHasManyFeed) Where(conds ...field.Expr) *userHasManyFeed {
+	if len(conds) == 0 {
+		return &a
+	}
+
+	exprs := make([]clause.Expression, 0, len(conds))
+	for _, cond := range conds {
+		exprs = append(exprs, cond.BeCond().(clause.Expression))
+	}
+	a.db = a.db.Clauses(clause.Where{Exprs: exprs})
+	return &a
+}
+
+func (a userHasManyFeed) WithContext(ctx context.Context) *userHasManyFeed {
+	a.db = a.db.WithContext(ctx)
+	return &a
+}
+
+func (a userHasManyFeed) Model(m *gen_model.User) *userHasManyFeedTx {
+	return &userHasManyFeedTx{a.db.Model(m).Association(a.Name())}
+}
+
+type userHasManyFeedTx struct{ tx *gorm.Association }
+
+func (a userHasManyFeedTx) Find() (result []*gen_model.Feed, err error) {
+	return result, a.tx.Find(&result)
+}
+
+func (a userHasManyFeedTx) Append(values ...*gen_model.Feed) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Append(targetValues...)
+}
+
+func (a userHasManyFeedTx) Replace(values ...*gen_model.Feed) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Replace(targetValues...)
+}
+
+func (a userHasManyFeedTx) Delete(values ...*gen_model.Feed) (err error) {
+	targetValues := make([]interface{}, len(values))
+	for i, v := range values {
+		targetValues[i] = v
+	}
+	return a.tx.Delete(targetValues...)
+}
+
+func (a userHasManyFeedTx) Clear() error {
+	return a.tx.Clear()
+}
+
+func (a userHasManyFeedTx) Count() int64 {
 	return a.tx.Count()
 }
 
