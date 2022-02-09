@@ -5,7 +5,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"jim_service/internal/jim_proto/proto_build"
-	"jim_service/internal/model"
 	"jim_service/internal/repository"
 	"jim_service/pkg"
 )
@@ -17,20 +16,19 @@ type FeedService struct {
 
 func (s *FeedService) FeedCreate(c context.Context, req *proto_build.FeedCreateRequest) (*proto_build.FeedCreateResponse, error) {
 	userId:=s.GetLoginUserId()
-	var feed *model.Feed
+	var protoFeed *proto_build.Feed
 	var err error
 	switch req.Type {
 	case proto_build.FeedType_Txt:
-		feed,err=repository.CreateTextFeed(pkg.Db, userId, req.Content)
+		protoFeed,err=repository.CreateTextFeed(pkg.Db, userId, req.Content)
 	case proto_build.FeedType_Image:
-		feed,err=repository.CreateImageFeed(pkg.Db, userId, req.Content,req.Resource)
+		protoFeed,err=repository.CreateImageFeed(pkg.Db, userId, req.Content,req.Resource)
 	case proto_build.FeedType_Video:
-		feed,err=repository.CreateVideoFeed(pkg.Db, userId, req.Content,req.Resource)
+		protoFeed,err=repository.CreateVideoFeed(pkg.Db, userId, req.Content,req.Resource)
 	}
 	if err!=nil{
 		return nil,status.Error(codes.Internal, err.Error())
 	}
-	protoFeed:=repository.ConvertFeedToProtoFeed(*feed)
 	rsp:=&proto_build.FeedCreateResponse{Feed: protoFeed}
 	return rsp,nil
 }
@@ -72,7 +70,7 @@ func (s *FeedService) FeedOwn(c context.Context, req *proto_build.FeedOwnRequest
 	return nil, status.Errorf(codes.Unimplemented, "method FeedOwn not implemented")
 }
 
-func (s *FeedService) FeedSearch(c context.Context, req *proto_build.FeedSearchRequest) (*proto_build.FeedSearchResponse, error) {
+func (s *FeedService) FeedQuery(c context.Context, req *proto_build.FeedQueryRequest) (*proto_build.FeedQueryResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FeedSearch not implemented")
 }
 

@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/fatih/color"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -21,9 +22,9 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"jim_service/config"
+	"jim_service/internal/dispatch"
 	"jim_service/internal/interceptor"
 	"jim_service/internal/jim_proto/proto_build"
-	"jim_service/internal/repository"
 	service "jim_service/internal/service"
 	"jim_service/pkg"
 	"net/http"
@@ -32,6 +33,7 @@ import (
 )
 
 var commonService *service.CommonService
+var gatewayService *service.GatewayService
 var groupService *service.GroupService
 var messageService *service.MessageService
 var pingService *service.PingService
@@ -72,6 +74,7 @@ func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
 	server := grpc.NewServer(opts...)
 
 	proto_build.RegisterCommonServiceServer(server,commonService)
+	proto_build.RegisterGatewayServiceServer(server,gatewayService)
 	proto_build.RegisterGroupServiceServer(server,groupService)
 	proto_build.RegisterMessageServiceServer(server,messageService)
 	proto_build.RegisterPingServiceServer(server, pingService)
@@ -132,6 +135,12 @@ func RunServer(client *clientv3.Client,config *config.Config) error {
 }
 
 func RunFunc()  {
-	go repository.SubscribeNewUser()
+	//go repository.SubscribeNewUser()
+	go func() {
+		err := dispatch.SubscribeCmdLogin()
+		if err != nil {
+			color.Red("dispatch.SubscribeCmdLogin error:%s ",err.Error())
+		}
+	}()
 }
 
