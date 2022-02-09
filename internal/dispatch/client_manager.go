@@ -20,7 +20,7 @@ func Dump() string  {
 func DumpClientIdGatewayIdMap() string {
 	var clientIdGatewayIdMapList []string
 	ClientIdGatewayIdMap.Range(func(key, value interface{}) bool {
-		item:=fmt.Sprintf("[%s:%d]",key,value.(uint64))
+		item:=fmt.Sprintf("[%s:%s]",key,value.(string))
 		clientIdGatewayIdMapList=append(clientIdGatewayIdMapList,item)
 		return true
 	})
@@ -42,7 +42,7 @@ func DumpGatewayIdSendMessageMap() string {
 func DumpGatewayIdPushToAllMap() string {
 	var GatewayIdPushToAllMapList []string
 	GatewayIdPushToAllMap.Range(func(key, value interface{}) bool {
-		item:=fmt.Sprintf("[%s:%s]",key,"2")
+		item:=fmt.Sprintf("[%s:%s]",key,"222")
 		GatewayIdPushToAllMapList=append(GatewayIdPushToAllMapList,item)
 		return true
 	})

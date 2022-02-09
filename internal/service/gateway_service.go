@@ -17,15 +17,16 @@ type GatewayService struct {
 }
 
 func (s *GatewayService) Register(c context.Context, req *proto_build.RegisterRequest) (*proto_build.RegisterResponse, error) {
+
 	dispatch.ClientIdGatewayIdMap.Store(req.ClientId,req.GatewayId)
-	color.Cyan("%s",dispatch.Dump())
+	color.Cyan("grpc client register success,client id:%s,gateway id:%s",req.ClientId,req.GatewayId)
 	rsp:=&proto_build.RegisterResponse{}
 	return rsp, nil
 }
 
 func (s *GatewayService) UnRegister(c context.Context, req *proto_build.UnRegisterRequest) (*proto_build.UnRegisterResponse, error) {
 	dispatch.ClientIdGatewayIdMap.Delete(req.GatewayId)
-	color.Cyan("%s",dispatch.Dump())
+	color.Cyan("grpc client unregister success,client id:%s,gateway id:%s",req.ClientId,req.GatewayId)
 	rsp:=&proto_build.UnRegisterResponse{}
 	return rsp,nil
 }

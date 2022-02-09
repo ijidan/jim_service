@@ -137,9 +137,11 @@ func RunServer(client *clientv3.Client,config *config.Config) error {
 func RunFunc()  {
 	//go repository.SubscribeNewUser()
 	go func() {
-		err := dispatch.SubscribeCmdLogin()
-		if err != nil {
-			color.Red("dispatch.SubscribeCmdLogin error:%s ",err.Error())
+		for _,v:=range pkg.Conf.Gateway.Id{
+			err := dispatch.SubscribeSendMessage(v)
+			if err != nil {
+				color.Red("dispatch.SubscribeCmdLogin error:%s ",err.Error())
+			}
 		}
 	}()
 }

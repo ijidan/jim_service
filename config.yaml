@@ -57,4 +57,6 @@ manager:
   email:
     "jidan" : "394777474@qq.com"
 
+gateway:
+  id: [g1]
 

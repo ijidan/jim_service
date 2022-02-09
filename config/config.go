@@ -80,6 +80,9 @@ type Config struct {
 	Manager struct{
 		Email map[string]string `yaml:"email"`
 	}
+	Gateway struct{
+		Id []string `yaml:"id"`
+	}
 }
 
 var (
