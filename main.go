@@ -11,7 +11,7 @@ var config embed.FS
 
 func main() {
 	defer pkg.Close()
-	server.RunFunc()
+	//server.RunFunc()
 
 	clientV3:=service.NewClientV3(pkg.Conf.Etcd.Host,pkg.Conf.Etcd.Timeout)
 	err := server.RunServer(clientV3,pkg.Conf)

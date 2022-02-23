@@ -1,41 +1,101 @@
 package dispatch
 
+const (
+	MessageTypeText     = "text"
+	MessageTypeLocation = "location"
+	MessageTypeFace     = "face"
+	MessageTypeSound    = "sound"
+	MessageTypeImage    = "image"
+	MessageTypeFile     = "file"
+	MessageTypeVideo    = "video"
+	MessageTypeAck      = "ack"
+)
+
 type ClientMessage struct {
-	Cmd  string      `json:"cmd"`
+	Type string      `json:"type"`
 	Data interface{} `json:"data"`
 }
 
 type TextMessage struct {
-	Id           uint64 `json:"id"`
+	SenderId     string `json:"sender_id"`
+	SenderName   string `json:"sender_name"`
+	SenderAvatar string `json:"sender_avatar"`
+	ReceiverId   string `json:"receiver_id"`
 	Content      string `json:"content"`
-	ToReceiverId string `json:"to_receiver_id"`
-	AtUserId  string `json:"at_user_id"`
+}
+type LocationMessage struct {
+	SenderId     string  `json:"sender_id"`
+	SenderName   string  `json:"sender_name"`
+	SenderAvatar string  `json:"sender_avatar"`
+	ReceiverId   string  `json:"receiver_id"`
+	CoverImage   string  `json:"cover_image"`
+	Lat          float64 `json:"lat"`
+	Lng          float64 `json:"lng"`
+	MapLink      string  `json:"map_link"`
+	Desc         string  `json:"desc"`
 }
 
-//type LocationMessage struct {
-//	Id uint64 `json:"id"`
-//	cover_image string `json:"cover_image"`
-//	Float lat
-//	double lng = 4;
-//	string map_link = 5;
-//	string desc = 6;
-//}
-//
-//
-////表情消息
-//message FaceMessage{
-//uint64 id = 1;
-//string symbol = 2;
-//}
-//*/
+type FaceMessage struct {
+	SenderId     string `json:"sender_id"`
+	SenderName   string `json:"sender_name"`
+	SenderAvatar string `json:"sender_avatar"`
+	ReceiverId   string `json:"receiver_id"`
+	Symbol       string `json:"symbol"`
+}
 
-//
-//type C2CMessage struct {
-//	Type    string `yaml:"type"`
-//	Content string `yaml:"content"`
-//}
-//
-//type C2GMessage struct {
-//	Type    string `yaml:"type"`
-//	Content string `yaml:"content"`
-//}
+type SoundMessage struct {
+		SenderId     string `json:"sender_id"`
+		SenderName   string `json:"sender_name"`
+		SenderAvatar string `json:"sender_avatar"`
+		ReceiverId   string `json:"receiver_id"`
+		Url          string `json:"url"`
+		Size         uint32    `json:"size"`
+		Seconds      uint32    `json:"seconds"`
+}
+
+type ImageMessage struct {
+	SenderId     string `json:"sender_id"`
+	SenderName   string `json:"sender_name"`
+	SenderAvatar string `json:"sender_avatar"`
+	ReceiverId   string `json:"receiver_id"`
+	Format       uint32    `json:"format"`
+	Size         uint32    `json:"size "`
+	Width        uint32    `json:"width "`
+	Height       uint32    `json:"height "`
+	IconUrl      string `json:"icon_url "`
+	BigUrl       string `json:"big_url "`
+}
+
+type FileMessage struct {
+	SenderId     string `json:"sender_id"`
+	SenderName   string `json:"sender_name"`
+	SenderAvatar string `json:"sender_avatar"`
+	ReceiverId   string `json:"receiver_id"`
+	Size         uint32    `json:"size"`
+	Name         string `json:"name"`
+	Format       uint32    `json:"format"`
+	ThumbUrl     string `json:"thumb_url"`
+	Url          string `json:"url"`
+}
+type VideoMessage struct {
+	SenderId     string `json:"sender_id"`
+	SenderName   string `json:"sender_name"`
+	SenderAvatar string `json:"sender_avatar"`
+	ReceiverId   string `json:"receiver_id"`
+	Size         uint32    `json:"size"`
+	Seconds      uint32    `json:"seconds"`
+	Url          string `json:"url"`
+	Format       uint32    `json:"format"`
+	ThumbUrl     string `json:"thumb_url"`
+	ThumbSize    uint32    `json:"thumb_size"`
+	ThumbWidth   uint32    `json:"thumb_width"`
+	ThumbHeight  uint32    `json:"thumb_height"`
+	ThumbFormat  uint32    `json:"thumb_format"`
+}
+
+
+type AckMessage struct {
+		ReceiverId string `json:"receiver_id"`
+		RequestId  uint32    `json:"request_id"`
+		MessageId  uint32    `json:"message_id"`
+}
