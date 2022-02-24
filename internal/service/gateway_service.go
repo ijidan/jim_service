@@ -100,8 +100,8 @@ func (s *GatewayService) SendMessage(stream proto_build.GatewayService_SendMessa
 				senderId = msgContent.SenderId
 				receiverId = msgContent.ReceiverId
 			}
-			messageId := uint32(100)
-			go func(senderId string, requestId uint32, messageId uint32) {
+			messageId := dispatch.GenMessageID()
+			go func(senderId string, requestId uint32, messageId int64) {
 				errAck := SendAckToSender(senderId, req.RequestId, messageId)
 				if errAck != nil {
 					color.Red("send ack error:%s", errAck.Error())
@@ -120,7 +120,7 @@ func (s *GatewayService) SendMessage(stream proto_build.GatewayService_SendMessa
 	return status.Errorf(codes.Internal, err.Error())
 }
 
-func SendAckToSender(senderId string, requestId uint32, messageId uint32) error {
+func SendAckToSender(senderId string, requestId uint32, messageId int64) error {
 	gatewayId, ok1 := dispatch.ClientIdGatewayIdMap.Load(senderId)
 	if !ok1 {
 		msg := "compute Gateway Id err"
@@ -141,7 +141,7 @@ func SendAckToSender(senderId string, requestId uint32, messageId uint32) error 
 	ackJson, _ := json.Marshal(ackMessage)
 	rsp := &proto_build.SendMessageResponse{
 		GatewayId:  gatewayId.(string),
-		Cmd:        dispatch.MessageTypeAck,
+		Cmd:        dispatch.BusinessCmdC2C,
 		RequestId:  requestId,
 		Data:       ackJson,
 		ReceiverId: senderId,

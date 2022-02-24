@@ -1,5 +1,9 @@
 package dispatch
 
+import (
+	"github.com/bwmarrin/snowflake"
+)
+
 const (
 	MessageTypeText     = "text"
 	MessageTypeLocation = "location"
@@ -97,5 +101,10 @@ type VideoMessage struct {
 type AckMessage struct {
 		ReceiverId string `json:"receiver_id"`
 		RequestId  uint32    `json:"request_id"`
-		MessageId  uint32    `json:"message_id"`
+		MessageId  int64    `json:"message_id"`
+}
+
+func GenMessageID() int64 {
+	node, _ := snowflake.NewNode(1)
+	return node.Generate().Int64()
 }
