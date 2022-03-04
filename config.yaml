@@ -2,6 +2,10 @@ app:
   name: Jim_service
   ver: 1.0.1
   env: local
+
+pprof:
+  port: 9094
+
 rpc:
   host: 127.0.0.1 #0.0.0.0
   port: 9093

@@ -22,6 +22,9 @@ type Config struct {
 		Port uint   `yaml:"port"`
 		Log  string `yaml:"log"`
 	}
+	Pprof struct{
+		Port uint `yaml:"port"`
+	}
 	Websocket struct {
 		Host string `yaml:"host"`
 		Port uint   `yaml:"port"`

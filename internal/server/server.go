@@ -41,16 +41,17 @@ var messageService *service.MessageService
 var pingService *service.PingService
 var userService *service.UserService
 
-func runHttpServer(config *config.Config) *http.ServeMux {
+func runHttpServerMux(config config.Config, gatewayServer *gwruntime.ServeMux) *http.ServeMux {
 	serveMux := http.NewServeMux()
 	serveMux.HandleFunc("/ping", func(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(`pong`))
 	})
-	serveMux.Handle("/metrics",promhttp.Handler())
+	serveMux.Handle("/metrics", promhttp.Handler())
+	serveMux.Handle("/", gatewayServer)
 	return serveMux
 }
 
-func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
+func runGrpcServer(client clientv3.Client, config config.Config) *grpc.Server {
 	var kaep = keepalive.EnforcementPolicy{
 		MinTime:             5 * time.Second, // If a client pings more than once every 5 seconds, terminate the connection
 		PermitWithoutStream: true,            // Allow pings even when there are no active streams
@@ -86,14 +87,13 @@ func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
 			ratelimit.UnaryServerInterceptor(interceptor.NewLimiterInterceptor()),
 			grpc_validator.UnaryServerInterceptor(),
 		)),
-
 	}
 	server := grpc.NewServer(opts...)
 
-	proto_build.RegisterCommonServiceServer(server,commonService)
-	proto_build.RegisterGatewayServiceServer(server,gatewayService)
-	proto_build.RegisterGroupServiceServer(server,groupService)
-	proto_build.RegisterMessageServiceServer(server,messageService)
+	proto_build.RegisterCommonServiceServer(server, commonService)
+	proto_build.RegisterGatewayServiceServer(server, gatewayService)
+	proto_build.RegisterGroupServiceServer(server, groupService)
+	proto_build.RegisterMessageServiceServer(server, messageService)
 	proto_build.RegisterPingServiceServer(server, pingService)
 	proto_build.RegisterUserServiceServer(server, userService)
 	reflection.Register(server)
@@ -102,7 +102,7 @@ func runGrpcServer(client *clientv3.Client,config *config.Config) *grpc.Server {
 	return server
 }
 
-func runGrpcGatewayServer(config *config.Config) *gwruntime.ServeMux {
+func runGrpcGatewayServer(config config.Config) *gwruntime.ServeMux {
 	endpoint := fmt.Sprintf("%s:%d", config.Rpc.Host, config.Rpc.Port)
 	gwMux := gwruntime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithInsecure()}
@@ -122,10 +122,10 @@ func runGrpcGatewayServer(config *config.Config) *gwruntime.ServeMux {
 	return gwMux
 }
 
-func ServiceRegister()  {
-	clientV3:=service.NewClientV3(pkg.Conf.Etcd.Host,pkg.Conf.Etcd.Timeout)
-	serviceRegister:=service.NewServiceRegister(clientV3,pkg.Conf.App.Name)
-	serviceRegister.RegisterService(userService.BasicService,pingService.BasicService)
+func ServiceRegister() {
+	clientV3 := service.NewClientV3(pkg.Conf.Etcd.Host, pkg.Conf.Etcd.Timeout)
+	serviceRegister := service.NewServiceRegister(clientV3, pkg.Conf.App.Name)
+	serviceRegister.RegisterService(userService.BasicService, pingService.BasicService)
 }
 
 func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
@@ -138,28 +138,82 @@ func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Ha
 	}), &http2.Server{})
 }
 
+func RunHttp(config config.Config, ctx context.Context) error {
 
-func RunServer(client *clientv3.Client,config *config.Config) error {
-	userService=service.NewUserService(config)
-	pingService=service.NewPingService(config)
-	address := fmt.Sprintf("%s:%d", config.Rpc.Host, config.Rpc.Port)
-	httpServer := runHttpServer(config)
-	grpcServer := runGrpcServer(client,config)
+	userService = service.NewUserService(config)
+	pingService = service.NewPingService(config)
 	gatewayServer := runGrpcGatewayServer(config)
+	httpMutex := runHttpServerMux(config, gatewayServer)
 
-	httpServer.Handle("/", gatewayServer)
-	return http.ListenAndServe(address, grpcHandlerFunc(grpcServer, httpServer))
+	address := fmt.Sprintf(":%d", config.Http.Port)
+	httpServer := http.Server{
+		Addr:    address,
+		Handler: httpMutex,
+	}
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				color.Red("close http")
+				_ = httpServer.Shutdown(context.Background())
+				return
+			}
+		}
+	}()
+	return httpServer.ListenAndServe()
 }
 
-func RunFunc()  {
+func RunPprof(config config.Config, ctx context.Context) error {
+	address := fmt.Sprintf(":%d", config.Pprof.Port)
+	httpServer := http.Server{
+		Addr:    address,
+		Handler: http.DefaultServeMux,
+	}
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				color.Red("close pprof")
+				_ = httpServer.Shutdown(context.Background())
+				return
+			}
+		}
+	}()
+	return httpServer.ListenAndServe()
+}
+
+func RunGrpc(config config.Config, ctx context.Context) error {
+	clientV3 := service.NewClientV3(pkg.Conf.Etcd.Host, pkg.Conf.Etcd.Timeout)
+	grpcServer := runGrpcServer(*clientV3, config)
+	grpcHttpHandler := grpcHandlerFunc(grpcServer, http.DefaultServeMux)
+
+	address := fmt.Sprintf(":%d", config.Rpc.Port)
+	httpServer := http.Server{
+		Addr:    address,
+		Handler: grpcHttpHandler,
+	}
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				color.Red("close grpc")
+				_ = httpServer.Shutdown(context.Background())
+				return
+			}
+		}
+	}()
+	return httpServer.ListenAndServe()
+}
+
+func RunFunc() {
 	//go repository.SubscribeNewUser()
 	go func() {
-		for _,v:=range pkg.Conf.Gateway.Id{
+		for _, v := range pkg.Conf.Gateway.Id {
 			err := dispatch.SubscribeSendMessage(v)
 			if err != nil {
-				color.Red("dispatch.SubscribeCmdLogin error:%s ",err.Error())
+				color.Red("dispatch.SubscribeCmdLogin error:%s ", err.Error())
 			}
 		}
 	}()
 }
-

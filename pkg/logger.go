@@ -22,6 +22,7 @@ func GetLoggerInstance(config *config.Config, root string) *logrus.Logger {
 			panic(err)
 		}
 		instanceLogger = logrus.New()
+		instanceLogger.SetLevel(logrus.InfoLevel)
 		instanceLogger.SetFormatter(&logrus.JSONFormatter{})
 		instanceLogger.SetOutput(io.MultiWriter(writer1, writer2))
 	})
