@@ -39,6 +39,15 @@ func main() {
 			pkg.Logger.Fatalf("run grpc server:%s", err.Error())
 		}
 	}()
+
+	go func() {
+		err:=server.RunGoPs(*pkg.Conf,ctx)
+		if err!=nil{
+			cancel()
+			pkg.Logger.Fatalf("run gops:%s", err.Error())
+		}
+	}()
+
 	color.Green("begin stop")
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGHUP, syscall.SIGINT, syscall.SIGILL, syscall.SIGQUIT, syscall.SIGTERM)

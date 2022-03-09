@@ -12,6 +12,10 @@ rpc:
   ttl: 5
   log: log/rpc.log
 
+ps:
+  host: 127.0.0.1
+  port: 9095
+
 mysql:
   host: 127.0.0.1 #172.17.0.1
   port: 3306
@@ -46,6 +50,7 @@ etcd:
 smms:
   user: jidan
   password: zhuan1234
+
 email:
   smtp: smtp.qq.com
   port: 465

@@ -22,7 +22,7 @@ type Config struct {
 		Port uint   `yaml:"port"`
 		Log  string `yaml:"log"`
 	}
-	Pprof struct{
+	Pprof struct {
 		Port uint `yaml:"port"`
 	}
 	Websocket struct {
@@ -35,6 +35,10 @@ type Config struct {
 		Port uint   `yaml:"port"`
 		Ttl  int64  `yaml:"ttl"`
 		Log  string `yaml:"log"`
+	}
+	Ps struct {
+		Host string `yaml:"host"`
+		Port uint   `yaml:"port"`
 	}
 	Mysql struct {
 		Host     string `yaml:"host"`
@@ -77,13 +81,13 @@ type Config struct {
 		Account  string `yaml:"account"`
 		Password string `yaml:"password"`
 	}
-	PubSub struct{
+	PubSub struct {
 		Brokers []string `yaml:"brokers"`
 	}
-	Manager struct{
+	Manager struct {
 		Email map[string]string `yaml:"email"`
 	}
-	Gateway struct{
+	Gateway struct {
 		Id []string `yaml:"id"`
 	}
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/google/gops/agent"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	grpc_zap "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
@@ -204,6 +205,24 @@ func RunGrpc(config config.Config, ctx context.Context) error {
 		}
 	}()
 	return httpServer.ListenAndServe()
+}
+
+func RunGoPs(config config.Config, ctx context.Context) error {
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				color.Red("close go ps")
+				agent.Close()
+				return
+			}
+		}
+	}()
+	address := fmt.Sprintf(":%d", config.Ps.Port)
+	return  agent.Listen(agent.Options{
+		Addr:                   address,
+		ShutdownCleanup:        true,
+	})
 }
 
 func RunFunc() {
