@@ -9,7 +9,7 @@ type KafkaS struct {
 	Address []string
 }
 
-func (k *KafkaS) PublishMessage(topic string, content string) error {
+func (k *KafkaS) Publish(topic string, md interface{}, content []byte) error {
 	config := sarama.NewConfig()
 	config.Producer.Return.Successes = true
 	config.Producer.Return.Errors = true
@@ -23,7 +23,8 @@ func (k *KafkaS) PublishMessage(topic string, content string) error {
 	}(producer)
 	m := &sarama.ProducerMessage{
 		Topic:     topic,
-		Value:     sarama.StringEncoder(content),
+		Metadata:  md,
+		Value:     sarama.ByteEncoder(content),
 		Timestamp: time.Time{},
 	}
 	go func() {
@@ -34,7 +35,7 @@ func (k *KafkaS) PublishMessage(topic string, content string) error {
 	return nil
 }
 
-func (k *KafkaS) Subscribe(topic string, groupId string, f func(*sarama.ConsumerMessage) error) error {
+func (k *KafkaS) Subscribe(topic string, groupId string, f func(*sarama.ConsumerMessage) error) (sarama.Client,error) {
 	config := sarama.NewConfig()
 	config.Consumer.Return.Errors = true
 	config.Consumer.Offsets.AutoCommit.Enable = true
@@ -42,16 +43,12 @@ func (k *KafkaS) Subscribe(topic string, groupId string, f func(*sarama.Consumer
 
 	client, err := sarama.NewClient(k.Address, config)
 	if err != nil {
-		return err
+		return nil,err
 	}
-	defer func(client sarama.Client) {
-		err := client.Close()
-		if err != nil {
-		}
-	}(client)
+
 	offsetManager, err1 := sarama.NewOffsetManagerFromClient(groupId, client)
 	if err1 != nil {
-		return err1
+		return nil,err1
 	}
 	defer func(offsetManager sarama.OffsetManager) {
 		err := offsetManager.Close()
@@ -60,7 +57,7 @@ func (k *KafkaS) Subscribe(topic string, groupId string, f func(*sarama.Consumer
 	}(offsetManager)
 	partitionOffsetManager, err2 := offsetManager.ManagePartition(topic, 0)
 	if err2 != nil {
-		return err2
+		return nil,err2
 	}
 	defer func(partitionOffsetManager sarama.PartitionOffsetManager) {
 		err := partitionOffsetManager.Close()
@@ -70,7 +67,7 @@ func (k *KafkaS) Subscribe(topic string, groupId string, f func(*sarama.Consumer
 	defer offsetManager.Commit()
 	consumer, err3 := sarama.NewConsumerFromClient(client)
 	if err3 != nil {
-		return err3
+		return nil,err3
 	}
 	nextOffset, _ := partitionOffsetManager.NextOffset()
 	pc, _ := consumer.ConsumePartition(topic, 0, nextOffset)
@@ -86,7 +83,7 @@ func (k *KafkaS) Subscribe(topic string, groupId string, f func(*sarama.Consumer
 			partitionOffsetManager.MarkOffset(nextOffset+1, "")
 		}
 	}
-	return nil
+	return client,nil
 }
 
 func NewKafkaS(address []string) *KafkaS {

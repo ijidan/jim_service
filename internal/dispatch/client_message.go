@@ -15,6 +15,18 @@ const (
 	MessageTypeAck      = "ack"
 )
 
+var MessageTypeToDbType=map[string]int32{
+	MessageTypeText     :1,
+	MessageTypeLocation :2,
+	MessageTypeFace     :3,
+	MessageTypeSound    :4,
+	MessageTypeImage    :5,
+	MessageTypeFile     :6,
+	MessageTypeVideo    :7,
+	MessageTypeAck      :8,
+}
+
+
 type ClientMessage struct {
 	Type string      `json:"type"`
 	Data interface{} `json:"data"`

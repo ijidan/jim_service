@@ -48,14 +48,21 @@ var genGormCmd = &cobra.Command{
 		typeOptUserId := gen.FieldType("user_id", "uint64")
 		typeOptGroupId := gen.FieldType("group_id", "uint64")
 		typeOptFeedId := gen.FieldType("feed_id", "uint64")
-		typeOptOperator:=gen.FieldType("operator","uint64")
+		typeOptOperator := gen.FieldType("operator", "uint64")
+		typeOptMessageId := gen.FieldType("message_id", "uint64")
 
 		device := g.GenerateModel("device", typeOptId)
 		deviceAck := g.GenerateModel("device_ack", gen.FieldRelate(field.BelongsTo, "Device", device, &field.RelateConfig{
 			// RelateSlice: true,
 			//GORMTag: "foreignKey:device_id",
 		}), typeOptId)
-		message := g.GenerateModel("message", typeOptId, typeOptSenderId, typeOptReceiverId)
+		messageContent := g.GenerateModel("message_content", typeOptId)
+
+		messageIndex := g.GenerateModel("message_index", gen.FieldRelate(field.HasOne, "MessageContent", messageContent, &field.RelateConfig{
+			// RelateSlice: true,
+			//GORMTag: "foreignKey:group_id",
+		}), typeOptId, typeOptSenderId, typeOptReceiverId, typeOptMessageId, typeOptGroupId)
+
 		groupUser := g.GenerateModel("group_user", typeOptId, typeOptGroupId, typeOptUserId)
 
 		feedImage := g.GenerateModel("feed_image", typeOptId, typeOptFeedId)
@@ -75,7 +82,7 @@ var genGormCmd = &cobra.Command{
 				// RelateSlice: true,
 				//GORMTag: "foreignKey:group_id",
 			}),
-			typeOptId, typeOptUserId,typeOptOperator)
+			typeOptId, typeOptUserId, typeOptOperator)
 
 		user := g.GenerateModel("user",
 			gen.FieldRelate(field.HasMany, "Device", device, &field.RelateConfig{
@@ -102,7 +109,7 @@ var genGormCmd = &cobra.Command{
 				//GORMTag: "foreignKey:group_id",
 			}), typeOptId, typeOptUserId)
 
-		g.ApplyBasic(device, deviceAck, group, groupUser, message, user, feed, feedLike, feedImage, feedVideo)
+		g.ApplyBasic(device, deviceAck, group, groupUser, user, feed, feedLike, feedImage, feedVideo, messageIndex)
 		g.ApplyBasic(g.GenerateAllTable(typeOptId)...)
 		// execute the action of code generation
 		g.Execute()

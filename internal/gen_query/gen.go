@@ -34,7 +34,9 @@ func Use(db *gorm.DB) *Query {
 		GoadminUsers:           newGoadminUsers(db),
 		Group:                  newGroup(db),
 		GroupUser:              newGroupUser(db),
-		Message:                newMessage(db),
+		MessageContent:         newMessageContent(db),
+		MessageIndex:           newMessageIndex(db),
+		SchemaMigrations:       newSchemaMigrations(db),
 		User:                   newUser(db),
 	}
 }
@@ -62,7 +64,9 @@ type Query struct {
 	GoadminUsers           goadminUsers
 	Group                  group
 	GroupUser              groupUser
-	Message                message
+	MessageContent         messageContent
+	MessageIndex           messageIndex
+	SchemaMigrations       schemaMigrations
 	User                   user
 }
 
@@ -91,7 +95,9 @@ func (q *Query) clone(db *gorm.DB) *Query {
 		GoadminUsers:           q.GoadminUsers.clone(db),
 		Group:                  q.Group.clone(db),
 		GroupUser:              q.GroupUser.clone(db),
-		Message:                q.Message.clone(db),
+		MessageContent:         q.MessageContent.clone(db),
+		MessageIndex:           q.MessageIndex.clone(db),
+		SchemaMigrations:       q.SchemaMigrations.clone(db),
 		User:                   q.User.clone(db),
 	}
 }
@@ -117,7 +123,9 @@ type queryCtx struct {
 	GoadminUsers           goadminUsersDo
 	Group                  groupDo
 	GroupUser              groupUserDo
-	Message                messageDo
+	MessageContent         messageContentDo
+	MessageIndex           messageIndexDo
+	SchemaMigrations       schemaMigrationsDo
 	User                   userDo
 }
 
@@ -143,7 +151,9 @@ func (q *Query) WithContext(ctx context.Context) *queryCtx {
 		GoadminUsers:           *q.GoadminUsers.WithContext(ctx),
 		Group:                  *q.Group.WithContext(ctx),
 		GroupUser:              *q.GroupUser.WithContext(ctx),
-		Message:                *q.Message.WithContext(ctx),
+		MessageContent:         *q.MessageContent.WithContext(ctx),
+		MessageIndex:           *q.MessageIndex.WithContext(ctx),
+		SchemaMigrations:       *q.SchemaMigrations.WithContext(ctx),
 		User:                   *q.User.WithContext(ctx),
 	}
 }

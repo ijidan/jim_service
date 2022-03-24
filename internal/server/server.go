@@ -24,7 +24,6 @@ import (
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 	"jim_service/config"
-	"jim_service/internal/dispatch"
 	"jim_service/internal/interceptor"
 	"jim_service/internal/jim_proto/proto_build"
 	service "jim_service/internal/service"
@@ -38,7 +37,7 @@ import (
 var commonService *service.CommonService
 var gatewayService *service.GatewayService
 var groupService *service.GroupService
-var messageService *service.MessageService
+//var messageService *service.MessageService
 var pingService *service.PingService
 var userService *service.UserService
 
@@ -94,7 +93,7 @@ func runGrpcServer(client clientv3.Client, config config.Config) *grpc.Server {
 	proto_build.RegisterCommonServiceServer(server, commonService)
 	proto_build.RegisterGatewayServiceServer(server, gatewayService)
 	proto_build.RegisterGroupServiceServer(server, groupService)
-	proto_build.RegisterMessageServiceServer(server, messageService)
+	//proto_build.RegisterMessageServiceServer(server, messageService)
 	proto_build.RegisterPingServiceServer(server, pingService)
 	proto_build.RegisterUserServiceServer(server, userService)
 	reflection.Register(server)
@@ -223,16 +222,4 @@ func RunGoPs(config config.Config, ctx context.Context) error {
 		Addr:                   address,
 		ShutdownCleanup:        true,
 	})
-}
-
-func RunFunc() {
-	//go repository.SubscribeNewUser()
-	go func() {
-		for _, v := range pkg.Conf.Gateway.Id {
-			err := dispatch.SubscribeSendMessage(v)
-			if err != nil {
-				color.Red("dispatch.SubscribeCmdLogin error:%s ", err.Error())
-			}
-		}
-	}()
 }

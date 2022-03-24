@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"github.com/fatih/color"
+	"jim_service/internal/dispatch"
 	"jim_service/internal/server"
 	"jim_service/pkg"
 	"os"
@@ -45,6 +46,13 @@ func main() {
 		if err!=nil{
 			cancel()
 			pkg.Logger.Fatalf("run gops:%s", err.Error())
+		}
+	}()
+	go func() {
+		err:=dispatch.SubscribeMessage(ctx)
+		if err!=nil{
+			cancel()
+			pkg.Logger.Fatalf("run kafka client:%s", err.Error())
 		}
 	}()
 

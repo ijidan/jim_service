@@ -75,6 +75,10 @@ stop:
 check:
 proto_update:
 	@cd internal/jim_proto && git pull origin master
+db_up:
+	@migrate -path migrate -database "mysql://root:root@tcp(127.0.0.1:3306)/jim" -verbose up
+db_down:
+	@migrate -path migrate -database "mysql://root:root@tcp(127.0.0.1:3306)/jim" -verbose down
 command:
 	@echo "goreman  gormt  grpcui  grpcurl  protoc-gen-doc  protoc-gen-go  protoc-gen-go-grpc  protoc-gen-govalidators  protoc-gen-grpc-gateway  protoc-gen-openapiv2  protoc-gen-validate"
 

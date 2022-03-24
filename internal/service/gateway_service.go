@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/fatih/color"
+	"github.com/spf13/cast"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"jim_service/config"
@@ -101,6 +102,7 @@ func (s *GatewayService) SendMessage(stream proto_build.GatewayService_SendMessa
 				receiverId = msgContent.ReceiverId
 			}
 			messageId := dispatch.GenMessageID()
+
 			go func(senderId string, requestId uint32, messageId int64) {
 				errAck := SendAckToSender(senderId, req.RequestId, messageId)
 				if errAck != nil {
@@ -108,6 +110,13 @@ func (s *GatewayService) SendMessage(stream proto_build.GatewayService_SendMessa
 				}
 			}(senderId, req.RequestId, messageId)
 
+			//send message to kafka
+			go func(senderId uint64, receiverId uint64, groupId uint64, messageContentId int64, messageType string, messageBody []byte, messageExtra []byte) {
+				dispatch.PublishMessage(senderId,receiverId,groupId,messageContentId,messageType,messageBody,messageExtra)
+			}(cast.ToUint64(senderId),cast.ToUint64(receiverId), 0 , messageId, msgData.Type, req.Data, nil)
+
+
+			//send ack
 			go func(receiverId string, cmd string, requestId uint32, data []byte) {
 				errSend := TransferToReceiver(receiverId, cmd, requestId, data)
 				if errSend != nil {

@@ -12,7 +12,7 @@ type PubSub struct {
 	brokers []string
 }
 
-func (w *PubSub) PublishMessage(topic string, content []byte) error {
+func (w *PubSub) PublishMessage(topic string,  content []byte) error {
 	publisher, err := kafka.NewPublisher(kafka.PublisherConfig{
 		Brokers:   w.brokers,
 		Marshaler: kafka.DefaultMarshaler{},
