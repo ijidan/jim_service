@@ -26,45 +26,32 @@ const (
 	MessageTypeVideo    = 6
 )
 
-func CreateUserTextMessage(db *gorm.DB, senderId uint64, toUserId uint64, text *proto_build.TextMessage) (*model.Message, error) {
+func CreateUserTextMessage(db *gorm.DB, senderId uint64, toUserId uint64, text *proto_build.TextMessage) (*model.MessageContent, error) {
 	messageContent:=&model.MessageContent{
 		ID:        0,
 		Type:      MessageTypeText,
 		Body:      text.Content,
 		Extra:     "",
-		CreatedAt: time.Time{},
-		UpdatedAt: time.Time{},
-		DeletedAt: nil,
 	}
-	message := &model.MessageC{
-		SenderID:     senderId,
-		SenderType:   SenderTypeUser,
-		ReceiverID:   toUserId,
-		ReceiverType: ReceiverTypeUser,
-		MessageType:  MessageTypeText,
-		Data:         text.Content,
-	}
-	err := db.Create(message).Error
+	err := db.Create(messageContent).Error
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return message, nil
+	return messageContent, nil
 }
 
-func CreateUserLocationMessage(db *gorm.DB, senderId uint64, toUserId uint64, location *proto_build.LocationMessage) (*model.Message, error) {
-	message := &model.Message{
-		SenderID:     senderId,
-		SenderType:   SenderTypeUser,
-		ReceiverID:   toUserId,
-		ReceiverType: ReceiverTypeUser,
-		MessageType:  MessageTypeLocation,
-		Data:         location.String(),
+func CreateUserLocationMessage(db *gorm.DB, senderId uint64, toUserId uint64, location *proto_build.LocationMessage) (*model.MessageContent, error) {
+	messageContent:=&model.MessageContent{
+		ID:        0,
+		Type:      MessageTypeText,
+		Body:      text.Content,
+		Extra:     "",
 	}
-	err := db.Create(message).Error
+	err := db.Create(messageContent).Error
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	return message, nil
+	return messageContent, nil
 }
 
 func CreateUserFaceMessage(db *gorm.DB, senderId uint64, toUserId uint64, face *proto_build.FaceMessage) (*model.Message, error) {

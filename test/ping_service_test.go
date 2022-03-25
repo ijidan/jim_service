@@ -14,7 +14,7 @@ import (
 func TestPing(t *testing.T) {
 	defer pkg.Close()
 
-	pingService := service.NewPingService(pkg.Conf)
+	pingService := service.NewPingService(*pkg.Conf)
 	rsp, err := pingService.Ping(context.Background(), &proto_build.PingRequest{})
 	require.Nil(t, err,err)
 	t.Log(rsp.GetMessage())
@@ -32,7 +32,7 @@ func TestClientPing(t *testing.T) {
 func BenchmarkPing(b *testing.B) {
 	defer pkg.Close()
 	for i:=0;i<b.N;i++{
-		pingService := service.NewPingService(pkg.Conf)
+		pingService := service.NewPingService(*pkg.Conf)
 		_, _ = pingService.Ping(context.Background(), &proto_build.PingRequest{})
 	}
 }

@@ -12,6 +12,7 @@ import (
 	"jim_service/config"
 	"jim_service/internal/dispatch"
 	"jim_service/internal/jim_proto/proto_build"
+	"time"
 )
 
 type GatewayService struct {
@@ -33,11 +34,21 @@ func (s *GatewayService) UnRegister(c context.Context, req *proto_build.UnRegist
 	return rsp, nil
 }
 
+func (s *GatewayService) SendToAll(c context.Context, req *proto_build.SendToAllRequest) (*proto_build.SendToAllResponse, error) {
+	requestId := uint32(time.Now().Second())
+	go SendToAll(dispatch.BusinessCmdS2C,requestId,req.Data)
+	rsp:=&proto_build.SendToAllResponse{}
+	return rsp,nil
+}
+
+
+
 func (s *GatewayService) SendMessage(stream proto_build.GatewayService_SendMessageServer) error {
 	errCh := make(chan error)
 	go func(errCh chan error) {
 		for {
 			req, err := stream.Recv()
+
 			if err != nil {
 				errCh <- err
 				return
@@ -46,75 +57,27 @@ func (s *GatewayService) SendMessage(stream proto_build.GatewayService_SendMessa
 			color.Cyan("%s", dispatch.Dump())
 			color.Yellow("grpc received message:%s", string(req.Data))
 
-			var data json.RawMessage
-			msgData := dispatch.ClientMessage{
-				Data: &data,
-			}
-			if err3 := json.Unmarshal(req.Data, &msgData); err3 != nil {
-				color.Red("parse message err:%s", err3.Error())
+			if req.Cmd==dispatch.BusinessCmdPing{
 				continue
 			}
-			var senderId string
-			var receiverId string
-			switch msgData.Type {
-			case dispatch.MessageTypeText:
-				var msgContent dispatch.TextMessage
-				if err := json.Unmarshal(data, &msgContent); err != nil {
-				}
-				senderId = msgContent.SenderId
-				receiverId = msgContent.ReceiverId
-				//todo trie
-			case dispatch.MessageTypeLocation:
-				var msgContent dispatch.LocationMessage
-				if err := json.Unmarshal(data, &msgContent); err != nil {
-				}
-				senderId = msgContent.SenderId
-				receiverId = msgContent.ReceiverId
-			case dispatch.MessageTypeFace:
-				var msgContent dispatch.FaceMessage
-				if err := json.Unmarshal(data, &msgContent); err != nil {
-				}
-				senderId = msgContent.SenderId
-				receiverId = msgContent.ReceiverId
-			case dispatch.MessageTypeSound:
-				var msgContent dispatch.SoundMessage
-				if err := json.Unmarshal(data, &msgContent); err != nil {
-				}
-				senderId = msgContent.SenderId
-				receiverId = msgContent.ReceiverId
-			case dispatch.MessageTypeImage:
-				var msgContent dispatch.ImageMessage
-				if err := json.Unmarshal(data, &msgContent); err != nil {
-				}
-				senderId = msgContent.SenderId
-				receiverId = msgContent.ReceiverId
-			case dispatch.MessageTypeFile:
-				var msgContent dispatch.FileMessage
-				if err := json.Unmarshal(data, &msgContent); err != nil {
-				}
-				senderId = msgContent.SenderId
-				receiverId = msgContent.ReceiverId
-			case dispatch.MessageTypeVideo:
-				var msgContent dispatch.VideoMessage
-				if err := json.Unmarshal(data, &msgContent); err != nil {
-				}
-				senderId = msgContent.SenderId
-				receiverId = msgContent.ReceiverId
+			senderId, receiverId, groupId, messageContentId, messageType, messageBody, messageExtra, err2 := dispatch.ParseMessage(req)
+			if err2 != nil {
+				color.Red("parse message err:%s", err2.Error())
+				continue
 			}
-			messageId := dispatch.GenMessageID()
 
 			go func(senderId string, requestId uint32, messageId int64) {
 				errAck := SendAckToSender(senderId, req.RequestId, messageId)
 				if errAck != nil {
 					color.Red("send ack error:%s", errAck.Error())
 				}
-			}(senderId, req.RequestId, messageId)
+			}(senderId, req.RequestId, messageContentId)
+
 
 			//send message to kafka
 			go func(senderId uint64, receiverId uint64, groupId uint64, messageContentId int64, messageType string, messageBody []byte, messageExtra []byte) {
-				dispatch.PublishMessage(senderId,receiverId,groupId,messageContentId,messageType,messageBody,messageExtra)
-			}(cast.ToUint64(senderId),cast.ToUint64(receiverId), 0 , messageId, msgData.Type, req.Data, nil)
-
+				dispatch.PublishMessage(senderId, receiverId, groupId, messageContentId, messageType, messageBody, messageExtra)
+			}(cast.ToUint64(senderId), cast.ToUint64(receiverId), groupId, messageContentId, messageType, messageBody, messageExtra)
 
 			//send ack
 			go func(receiverId string, cmd string, requestId uint32, data []byte) {
@@ -190,6 +153,35 @@ func TransferToReceiver(receiverId string, cmd string, requestId uint32, data []
 		return errors.New(msg)
 	}
 	return nil
+}
+
+func SendToAll(cmd string, requestId uint32, data []byte) {
+	color.Yellow("send to all begin")
+	dispatch.ClientIdGatewayIdMap.Range(func(key, value interface{}) bool {
+		receiverId := key.(string)
+		gatewayId := value.(string)
+		color.Yellow("send to all range: %s:%s",gatewayId,receiverId)
+		rsp := &proto_build.SendMessageResponse{
+			GatewayId:  gatewayId,
+			Cmd:        cmd,
+			RequestId:  requestId,
+			Data:       data,
+			ReceiverId: receiverId,
+		}
+		serv, ok := dispatch.GatewayIdSendMessageMap.Load(gatewayId)
+		if ok {
+			srv := serv.(proto_build.GatewayService_SendMessageServer)
+			err := srv.Send(rsp)
+			if err != nil {
+				color.Red("send to all error,send message err:%s", err.Error())
+			}else{
+				color.Yellow("send to all success")
+			}
+		} else {
+			color.Red("send to all error,gateway id:%s", gatewayId)
+		}
+		return true
+	})
 }
 
 func NewGatewayService(config *config.Config) *GatewayService {
