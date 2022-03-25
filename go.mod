@@ -69,14 +69,16 @@ require (
 	github.com/lithammer/shortuuid/v3 v3.0.7 // indirect
 	github.com/lufia/plan9stats v0.0.0-20220305071607-d0b38dbe16db // indirect
 	github.com/mattn/go-colorable v0.1.12 // indirect
+	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/mwitkow/go-proto-validators v0.3.2 // indirect
 	github.com/oklog/ulid v1.3.1 // indirect
+	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/power-devops/perfstat v0.0.0-20220216144756-c35f1ee13d7c // indirect
-	github.com/pseudomuto/protoc-gen-doc v1.5.1 // indirect
-	github.com/pseudomuto/protokit v0.2.1 // indirect
+	github.com/pseudomuto/protoc-gen-doc v1.5.0 // indirect
+	github.com/pseudomuto/protokit v0.2.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	github.com/shirou/gopsutil/v3 v3.22.2 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect

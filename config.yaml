@@ -4,6 +4,7 @@ app:
   env: local
 
 pprof:
+  host: 127.0.0.1
   port: 9094
 
 rpc:
@@ -15,6 +16,11 @@ rpc:
 ps:
   host: 127.0.0.1
   port: 9095
+
+http:
+  host: 127.0.0.1
+  port: 9096
+  log: log/http.log
 
 mysql:
   host: 127.0.0.1 #172.17.0.1

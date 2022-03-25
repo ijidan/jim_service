@@ -145,7 +145,7 @@ func RunHttp(config config.Config, ctx context.Context) error {
 	gatewayServer := runGrpcGatewayServer(config)
 	httpMutex := runHttpServerMux(config, gatewayServer)
 
-	address := fmt.Sprintf(":%d", config.Http.Port)
+	address := fmt.Sprintf("%s:%d", config.Http.Host,config.Http.Port)
 	httpServer := http.Server{
 		Addr:    address,
 		Handler: httpMutex,
@@ -165,7 +165,7 @@ func RunHttp(config config.Config, ctx context.Context) error {
 }
 
 func RunPprof(config config.Config, ctx context.Context) error {
-	address := fmt.Sprintf(":%d", config.Pprof.Port)
+	address := fmt.Sprintf("%s:%d", config.Pprof.Host,config.Pprof.Port)
 	httpServer := http.Server{
 		Addr:    address,
 		Handler: http.DefaultServeMux,
